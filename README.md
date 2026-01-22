@@ -11,6 +11,14 @@
 
 ### Used technologies
 
+-React Native Expo
+-Typescript
+-
+-
+-
+-
+
+
 ### Team Members
 - Anton Mattila
 - Markus Ovaska
