@@ -12,4 +12,5 @@
 ### Team Members
 - Anton Mattila
 - Markus Ovaska
-- 
+- Elias Jungman
+- Henri Tomperi
