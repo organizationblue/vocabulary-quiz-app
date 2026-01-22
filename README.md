@@ -11,12 +11,8 @@
 
 ### Used technologies
 
--React Native Expo
--Typescript
--
--
--
--
+- React Native Expo
+- Typescript
 
 
 ### Team Members
