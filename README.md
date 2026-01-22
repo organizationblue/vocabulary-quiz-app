@@ -9,6 +9,8 @@
 3.  As a user I want immediate feedback on my answer, so I know if I answered correctly.
 4. As a user I want to be able to see my score at the end of the session so I can track my progress.
 
+### Used technologies
+
 ### Team Members
 - Anton Mattila
 - Markus Ovaska
