@@ -4,12 +4,21 @@
 - The project is meant to help users improve on vocabulary between two languages they select.
 
 ### Main features
-1.  As a user I want to be able to start vocabulary training so I can improve on English to Finnish translation and vice versa.
-2.  As a user I want to be able to see an English word and select the correct corresponding Finnish word and vice versa.
-3.  As a user I want immediate feedback on my answer, so I know if I answered correctly.
-4. As a user I want to be able to see my score at the end of the session so I can track my progress.
+1.  As a user I want to be able to see a word in language A in order to translate it to language B
+2.  As a user I want to be able to type the translated word in a textfield
+3.  As a user I want immediate feedback on my answer, and see the correct answer
+4.  As a user I want to be able to move to the next word after the previous answer
+
+### Used technologies
+
+- React Native/Expo
+- Typescript
+- Node.js tai express.js
+
 
 ### Team Members
 - Anton Mattila
 - Markus Ovaska
-- 
+- Elias Jungman
+- Henri Tomperi
+- Eetu Pärnänen
