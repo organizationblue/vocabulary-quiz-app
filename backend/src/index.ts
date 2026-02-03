@@ -1,10 +1,12 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { getRandomWord } from './utils/wordService.js';
+import cors from 'cors';
+import { getRandomWord } from './service/wordService.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/api/word', (req: Request, res: Response) => {
