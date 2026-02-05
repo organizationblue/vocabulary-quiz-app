@@ -1,9 +1,23 @@
 import { useEffect, useState } from 'react';
-import { Button, Text, TextInput, View } from 'react-native'
+import {
+    Button,
+    Text,
+    TextInput,
+    View,
+    StyleSheet,
+    useWindowDimensions
+} from 'react-native'
 
 export default function Word() {
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
-    const [quess, setQuess] = useState<string>("");
+
+    const { width } = useWindowDimensions();
+
+    // Responsive font sizes based on screen width
+    const titleFontSize = width * 0.06;
+    const normalFontSize = width * 0.04;
+
+    const [guess, setGuess] = useState<string>("");
     const [word, setWord] = useState<{ finnish: string, english: string }>({ finnish: "", english: "" });
 
     /**
@@ -33,35 +47,61 @@ export default function Word() {
      * Check if the quess is correct
      * Uses word and quess states
      */
-    function quessWord() {
-        if (quess.toLowerCase() === word.english.toLowerCase()) {
+    function guessWord() {
+        if (guess.toLowerCase() === word.english.toLowerCase()) {
             alert("correct");
         } else {
             alert("wrong answer, correct is: " + word.english);
         }
     }
+
     useEffect(() => {
         fetchWord();
     }, []);
 
     return (
-        <View>
-            <Text>word: {word.finnish}</Text>
-            <Text>translation</Text>
+        <View style={styles.container}>
+            <Text style={[styles.wordText, { fontSize: titleFontSize }]}>
+                word: {word.finnish}
+            </Text>
+
+            <Text style={[styles.label, { fontSize: normalFontSize }]}>
+                translation
+            </Text>
+
             <TextInput
                 placeholder='try to translate the word'
-                style={{
-                    borderColor: 'grey',
-                    borderWidth: 1
-                }}
-                onChangeText={setQuess}
-                value={quess}
+                style={[
+                    styles.input,
+                    { fontSize: normalFontSize }
+                ]}
+                onChangeText={setGuess}
+                value={guess}
             />
 
             <Button
-                onPress={quessWord}
-                title="answer"
+                onPress={guessWord}
+                title="submit"
             />
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        padding: 20,
+        gap: 12
+    },
+    wordText: {
+        fontWeight: 'bold'
+    },
+    label: {
+        color: '#0d0c0c'
+    },
+    input: {
+        borderColor: 'grey',
+        borderWidth: 1,
+        padding: 10,
+        borderRadius: 6
+    }
+});
