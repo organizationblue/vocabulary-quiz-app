@@ -22,3 +22,9 @@
 - Elias Jungman
 - Henri Tomperi
 - Eetu Pärnänen
+
+
+### Setup for expo go
+1. In the frontend folder create .env file
+2. Add the following to the .env: EXPO_PUBLIC_API_URL=http://(your IP-adress):3000
+3. Replace (your IP adress) with your actual IP-adress. You can see it by running ipconfig in windows terminal.
