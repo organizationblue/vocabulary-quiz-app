@@ -48,7 +48,7 @@ export default function Word() {
      * Uses word and quess states
      */
     function guessWord() {
-        if (guess.toLowerCase() === word.english.toLowerCase()) {
+        if (guess === word.english) {
             alert("correct");
         } else {
             alert("wrong answer, correct is: " + word.english);
