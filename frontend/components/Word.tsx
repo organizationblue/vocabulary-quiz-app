@@ -1,8 +1,8 @@
-import { use, useEffect, useState } from 'react';
-import { Button, Text, TextInput } from 'react-native'
+import { useEffect, useState } from 'react';
+import { Button, Text, TextInput, View } from 'react-native'
 
 export default function Word() {
-    const API_URL = "http://127.0.0.1:3000";
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
     const [quess, setQuess] = useState<string>("");
     const [word, setWord] = useState<{ finnish: string, english: string }>({ finnish: "", english: "" });
 
@@ -45,7 +45,7 @@ export default function Word() {
     }, []);
 
     return (
-        <>
+        <View>
             <Text>word: {word.finnish}</Text>
             <Text>translation</Text>
             <TextInput
@@ -62,6 +62,6 @@ export default function Word() {
                 onPress={quessWord}
                 title="answer"
             />
-        </>
+        </View>
     );
 }
