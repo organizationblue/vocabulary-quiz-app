@@ -49,9 +49,9 @@ export default function Word() {
      */
     function guessWord() {
         if (guess === word.english) {
-            alert("correct");
+            alert("Correct!");
         } else {
-            alert("wrong answer, correct is: " + word.english);
+            alert("Incorrect, the correct translation is: " + word.english);
         }
     }
     function nextWord() {
@@ -66,15 +66,11 @@ export default function Word() {
     return (
         <View style={styles.container}>
             <Text style={[styles.wordText, { fontSize: titleFontSize }]}>
-                word: {word.finnish}
-            </Text>
-
-            <Text style={[styles.label, { fontSize: normalFontSize }]}>
-                translation
+                Word: {word.finnish}
             </Text>
 
             <TextInput
-                placeholder='try to translate the word'
+                placeholder='Type in the translation'
                 style={[
                     styles.input,
                     { fontSize: normalFontSize }
@@ -85,7 +81,7 @@ export default function Word() {
 
             <Button
                 onPress={guessWord}
-                title="submit"
+                title="Submit"
             />
             <Button
                 onPress={nextWord}
