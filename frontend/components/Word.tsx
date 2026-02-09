@@ -54,6 +54,10 @@ export default function Word() {
             alert("wrong answer, correct is: " + word.english);
         }
     }
+    function nextWord() {
+        setGuess("");
+        fetchWord();
+    }
 
     useEffect(() => {
         fetchWord();
@@ -82,6 +86,10 @@ export default function Word() {
             <Button
                 onPress={guessWord}
                 title="submit"
+            />
+            <Button
+                onPress={nextWord}
+                title="Next Word"
             />
         </View>
     );
