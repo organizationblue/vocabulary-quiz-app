@@ -19,6 +19,7 @@ export default function Word() {
 
     const [guess, setGuess] = useState<string>("");
     const [word, setWord] = useState<{ finnish: string, english: string }>({ finnish: "", english: "" });
+    const [message, setMessage] = useState<{content: string, color: 'red'| 'green'}>();
 
     /**
      * Fetch a random word from the backend API and set it to word state
@@ -49,9 +50,10 @@ export default function Word() {
      */
     function guessWord() {
         if (guess === word.english) {
-            alert("Correct!");
+            setMessage({color: 'green', content: 'Your answer is correct'});
+            nextWord();
         } else {
-            alert("Incorrect, the correct translation is: " + word.english);
+            setMessage({color: 'red', content: 'Your answer is wrong'});
         }
     }
     function nextWord() {
@@ -63,19 +65,25 @@ export default function Word() {
         fetchWord();
     }, []);
 
+    function changeGuess(newguess: string) {
+        setMessage(undefined);
+        setGuess(newguess);
+    }
+
     return (
         <View style={styles.container}>
+            {message && <Text style={
+                [styles.wordText, { fontSize: titleFontSize }, {color: message.color}]}>{message.content}</Text>}
             <Text style={[styles.wordText, { fontSize: titleFontSize }]}>
                 Word: {word.finnish}
             </Text>
-
             <TextInput
                 placeholder='Type in the translation'
                 style={[
                     styles.input,
                     { fontSize: normalFontSize }
                 ]}
-                onChangeText={setGuess}
+                onChangeText={changeGuess}
                 value={guess}
             />
 
