@@ -20,6 +20,7 @@ export default function Word() {
     const [guess, setGuess] = useState<string>("");
     const [word, setWord] = useState<{ finnish: string, english: string }>({ finnish: "", english: "" });
     const [message, setMessage] = useState<{content: string, color: 'red'| 'green'}>();
+    const [revealedLetters, setRevealedLetters] = useState<number>(0);
 
     /**
      * Fetch a random word from the backend API and set it to word state
@@ -38,11 +39,36 @@ export default function Word() {
             }
 
             setWord(json.data);
+            setRevealedLetters(0);
         } catch (error) {
             console.error("Error fetching word: ", error);
             alert("Error fetching word from server: " + error);
         }
     };
+    /**
+        * Generate hint text with revealed letters
+        * Uses word and revealedLetters states
+        */
+    function generateHint(): string {
+        if (!word.english || revealedLetters === 0) {
+            return '';
+        }
+
+        const answer = word.english;
+        let hint = '';
+
+        for (let i = 0; i < answer.length; i++) {
+            if (i < revealedLetters) {
+                hint += answer[i];
+            } else {
+                hint += '_';
+            }
+            if (i < answer.length - 1) {
+                hint += ' ';
+            }
+        }
+        return hint;
+    }
 
     /**
      * Check if the quess is correct
@@ -53,11 +79,19 @@ export default function Word() {
             setMessage({color: 'green', content: 'Your answer is correct'});
             nextWord();
         } else {
-            setMessage({color: 'red', content: 'Your answer is wrong'});
+            const newRevealedCount = Math.min(revealedLetters + 1, word.english.length);
+            setRevealedLetters(newRevealedCount);
+
+            if (newRevealedCount >= word.english.length) {
+                setMessage({ color: 'red', content: `Wrong answer. The correct answer is: ${word.english}` });
+            } else {
+                setMessage({ color: 'red', content: 'Your answer is wrong' });
+            }
         }
     }
     function nextWord() {
         setGuess("");
+        setRevealedLetters(0);
         fetchWord();
     }
 
@@ -70,13 +104,20 @@ export default function Word() {
         setGuess(newguess);
     }
 
+    const hintText = generateHint();
+
     return (
         <View style={styles.container}>
             {message && <Text style={
-                [styles.wordText, { fontSize: titleFontSize }, {color: message.color}]}>{message.content}</Text>}
+                    [styles.wordText, { fontSize: titleFontSize }, {color: message.color}]}>{message.content}</Text>}
             <Text style={[styles.wordText, { fontSize: titleFontSize }]}>
                 Word: {word.finnish}
             </Text>
+            {hintText && (
+                <Text style={[styles.hintText, { fontSize: normalFontSize }]}>
+                    Hint: {hintText}
+                </Text>
+            )}
             <TextInput
                 placeholder='Type in the translation'
                 style={[
@@ -115,5 +156,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         padding: 10,
         borderRadius: 6
+    },
+    hintText: {
+        color: '#666',
+        fontStyle: 'italic',
+        marginTop: 8
     }
 });
