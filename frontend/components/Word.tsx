@@ -47,6 +47,7 @@ export default function Word() {
     };
     /**
         * Generate hint text with revealed letters
+        * .
         * Uses word and revealedLetters states
         */
     function generateHint(): string {
