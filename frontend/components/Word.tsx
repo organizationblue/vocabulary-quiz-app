@@ -75,7 +75,7 @@ export default function Word() {
      * Uses word and quess states
      */
     function guessWord() {
-        if (guess === word.english) {
+        if (guess.toLowerCase() === word.english.toLowerCase()) {
             setMessage({color: 'green', content: 'Your answer is correct'});
             nextWord();
         } else {
