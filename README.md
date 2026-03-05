@@ -53,3 +53,37 @@ The backend uses Vitest and Supertest
 ```bash
    npm test
 ```
+
+## Deployment
+
+The application is deployed and accessible online.
+
+### Frontend
+
+The frontend application can be accessed at:
+
+https://vocabulary-quiz-app.onrender.com
+
+This is the user interface where users can practise their vocabulary.
+
+
+### Backend API
+
+The backend API is deployed at:
+
+https://vocabulary-quiz-app-git-vocabulary-quiz-app.2.rahtiapp.fi
+
+Example endpoint:
+
+GET https://vocabulary-quiz-app-git-vocabulary-quiz-app.2.rahtiapp.fi/api/word
+
+This endpoint returns a random vocabulary word from the mock dataset.
+
+Example response:
+{
+  "success": true,
+  "data": {
+    "english": "hair",
+    "finnish": "hiukset"
+  }
+}
