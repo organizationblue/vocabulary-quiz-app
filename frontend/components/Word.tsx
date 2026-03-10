@@ -8,7 +8,11 @@ import {
     useWindowDimensions
 } from 'react-native'
 
-export default function Word() {
+interface WordProps {
+    nickname: string;
+}
+
+export default function Word({ nickname }: WordProps) {
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
     const { width } = useWindowDimensions();
@@ -109,16 +113,23 @@ export default function Word() {
 
     return (
         <View style={styles.container}>
+
+            <Text style={[styles.nicknameText, {fontSize: normalFontSize}]}>
+                Playing as: {nickname}
+            </Text>
             {message && <Text style={
                     [styles.wordText, { fontSize: titleFontSize }, {color: message.color}]}>{message.content}</Text>}
+
             <Text style={[styles.wordText, { fontSize: titleFontSize }]}>
                 Word: {word.finnish}
             </Text>
+
             {hintText && (
                 <Text style={[styles.hintText, { fontSize: normalFontSize }]}>
                     Hint: {hintText}
                 </Text>
             )}
+
             <TextInput
                 placeholder='Type in the translation'
                 style={[
@@ -162,5 +173,9 @@ const styles = StyleSheet.create({
         color: '#666',
         fontStyle: 'italic',
         marginTop: 8
+    },
+    nicknameText: {
+        color: '#666',
+        marginBottom: 8
     }
 });
