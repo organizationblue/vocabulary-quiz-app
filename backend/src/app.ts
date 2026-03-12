@@ -2,14 +2,67 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import cors from 'cors';
 import { getRandomWord } from './service/wordService.js';
+/** https://dev.to/qbentil/swagger-express-documenting-your-nodejs-rest-api-4lj7 */
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc';
+
+const PORT = process.env.PORT || 8080;
 
 export const app = express();
-
 
 app.use(cors());
 app.use(express.json());
 
+   // Swagger definition
+     const swaggerOptions = {
+       swaggerDefinition: {
+         openapi: '3.0.0',
+         info: {
+           title: 'My API',
+           version: '1.0.0',
+           description: 'API documentation using Swagger',
+         },
+         servers: [
+           {
+             url: `http://localhost:${PORT}`,
+           },
+         ],
+         components: {
+           schemas: {
+             Word: {
+               type: 'object',
+               properties: {
+                 english: { type: 'string' },
+                 finnish: { type: 'string' }
+               }
+             }
+           }
+         },
+       },
+       apis: ['./src/app.ts'], // Path to your API docs
+     }
 
+   const swaggerDocs = swaggerJSDoc(swaggerOptions);
+   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+/**
+ * @openapi
+ * /api/word:
+ *   get:
+ *     summary: Get a random word
+ *     responses:
+ *       200:
+ *         description: A random word
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Word'
+ */
 app.get('/api/word', (req: Request, res: Response) => {
   try {
     const word = getRandomWord();
