@@ -11,7 +11,12 @@ export const getAllWords = (): Word[] =>{
     return words;
 };
 
-
 export const getWordCount = (): number => {
     return words.length;
+};
+
+export const getRandomWords = (count: number): Word[] => {
+    const safeCount = Math.min(count, words.length);
+    const shuffled = [...words].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, safeCount);
 };
