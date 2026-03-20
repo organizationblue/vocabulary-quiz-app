@@ -7,9 +7,11 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
+    "dev:broken": "node -e \"throw new Error('Intentional backend failure for testing')\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsc"
+    "build": "tsc",
+    "build:broken": "tsc --project tsconfig.missing.json"
   },
   "keywords": [],
   "author": "",
