@@ -9,6 +9,7 @@ import Word from './components/Word';
 import { MD3LightTheme, PaperProvider } from 'react-native-paper';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const BROKEN_FRONTEND_BUILD: number = 'intentional-ci-break';
 
 export default function App() {
   return (

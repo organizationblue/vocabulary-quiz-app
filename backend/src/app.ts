@@ -7,6 +7,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 
 const PORT = process.env.PORT || 8080;
+const BROKEN_BACKEND_BUILD: number = 'intentional-ci-break';
 
 export const app = express();
 

@@ -35,7 +35,7 @@ jobs:
         run: npm test
 
       - name: Build backend
-        run: npm run build:broken
+        run: npm run build
 
   frontend:
     name: React Native frontend (typecheck)
@@ -57,5 +57,5 @@ jobs:
         run: npm install
 
       - name: Typecheck Expo app
-        run: npx tsc -p tsconfig.missing.json
+        run: npx tsc -p tsconfig.json
 
