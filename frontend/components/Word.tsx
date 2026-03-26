@@ -142,14 +142,16 @@ export default function Word({
                 onSubmitEditing={guessWord}
             />
 
-            <Button
-                onPress={guessWord}
-                title="Submit"
-            />
-            <Button
-                onPress={handleSkip}
-                title="Skip"
-            />
+            <View style={styles.buttonRow}>
+                <Button
+                    onPress={guessWord}
+                    title="Submit"
+                />
+                <Button
+                    onPress={handleSkip}
+                    title="Skip"
+                />
+            </View>
         </View>
     );
 }
@@ -175,9 +177,11 @@ const styles = StyleSheet.create({
     },
     progressText: {
         color: '#999',
+        textAlign: 'center',
     },
     wordText: {
         fontWeight: 'bold',
+        textAlign: 'center',
     },
     input: {
         borderColor: 'grey',
@@ -189,5 +193,11 @@ const styles = StyleSheet.create({
         color: '#666',
         fontStyle: 'italic',
         marginTop: 8,
+        textAlign: 'center',
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 16,
     },
 });

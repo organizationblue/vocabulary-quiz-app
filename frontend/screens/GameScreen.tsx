@@ -160,15 +160,18 @@ const styles = StyleSheet.create({
     resultTitle: {
         fontWeight: 'bold',
         marginBottom: 16,
+        textAlign: 'center',
     },
     resultScore: {
         fontWeight: 'bold',
         color: '#4CAF50',
         marginBottom: 16,
+        textAlign: 'center',
     },
     resultNickname: {
         color: '#666',
         marginBottom: 32,
+        textAlign: 'center',
     },
     button: {
         width: '100%',
