@@ -112,7 +112,7 @@ app.get('/api/word', (req: Request, res: Response) => {
  *       400:
  *         description: Invalid count parameter
  */
-app.get('/api/word', (req: Request, res: Response) => {
+app.get('/api/words', (req: Request, res: Response) => {
     try {
         const count = parseInt(req.query.count as string) || 20;
 
