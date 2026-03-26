@@ -38,7 +38,7 @@ export default function GameScreen({ route, navigation }: Props) {
             setCurrentWordIndex(0);
             setGameOver(false);
 
-            const response = await fetch(`${API_URL}/api/words?count=${SESSION_SIZE}`);
+            const response = await fetch(`${API_URL}/api/word?count=${SESSION_SIZE}`);
             const json = await response.json();
 
             if (!response.ok) {
