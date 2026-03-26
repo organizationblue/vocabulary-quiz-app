@@ -33,8 +33,8 @@ export default function Word({
     onSkip,
 }: WordProps) {
     const { width } = useWindowDimensions();
-    const titleFontSize = width * 0.06;
-    const normalFontSize = width * 0.04;
+    const titleFontSize = Math.min(width * 0.06, 48);
+    const normalFontSize = Math.min(width * 0.04, 20);
 
     const [guess, setGuess] = useState<string>('');
     const [message, setMessage] = useState<{ content: string; color: 'red' | 'green' }>();

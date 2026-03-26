@@ -18,8 +18,8 @@ const calculateWordScore = (wrongAttempts: number, wordLength: number): number =
 export default function GameScreen({ route, navigation }: Props) {
     const { nickname } = route.params;
     const { width } = useWindowDimensions();
-    const titleFontSize = width * 0.06;
-    const normalFontSize = width * 0.04;
+    const titleFontSize = Math.min(width * 0.06, 48);
+    const normalFontSize = Math.min(width * 0.04, 20);
 
     const [wordPool, setWordPool] = useState<WordType[]>([]);
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
