@@ -2,9 +2,9 @@ import {View, StyleSheet, useWindowDimensions } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Word from '../components/Word';
 import { RootStackParamList } from '../types/navigation';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, Button } from 'react-native-paper';
-import type { Word as WordType } from '../../backend/src/types/words.js';
+import type { Word as WordType } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Game'>;
 
@@ -29,6 +29,20 @@ export default function GameScreen({ route, navigation }: Props) {
     const [loading, setLoading] = useState<boolean>(true);
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+    const saveScore = async (finalScore: number) => {
+        try {
+            await fetch(`${API_URL}/api/score`, {
+                method: 'POST',
+                headers: {'Content-type': 'application/json'},
+                body: JSON.stringify({ nickname, score: finalScore }),
+            });
+        } catch (error) {
+            console.error('Error saving score:', error);
+        }
+    };
+        
+    
 
     const startSession = async () => {
         try {
@@ -55,10 +69,11 @@ export default function GameScreen({ route, navigation }: Props) {
         }
     };
 
-    const advanceWord = () => {
+    const advanceWord = (currentScore: number) => {
         const nextIndex = currentWordIndex + 1;
         if (nextIndex >= SESSION_SIZE) {
             setGameOver(true);
+            saveScore(currentScore);
         } else {
             setCurrentWordIndex(nextIndex);
             setWrongAttempts(0);
@@ -69,8 +84,8 @@ export default function GameScreen({ route, navigation }: Props) {
         const currentWord = wordPool[currentWordIndex];
         if (!currentWord) return;
         const wordScore = calculateWordScore(wrongAttempts, currentWord.english.length);
-        setScore(prev=> Math.round((prev + wordScore) * 10) / 10);
-        advanceWord();
+        const newScore = Math.round((score + wordScore) * 10) / 10;        setScore(newScore);
+        advanceWord(newScore);
     };
 
     const handleWrongAnswer = () => {
@@ -78,7 +93,7 @@ export default function GameScreen({ route, navigation }: Props) {
     };
 
     const handleSkip = () => {
-        advanceWord();
+        advanceWord(score);
     };
 
     useEffect(() => {
