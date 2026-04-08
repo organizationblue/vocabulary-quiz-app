@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     Button,
     Text,
@@ -38,6 +38,11 @@ export default function Word({
 
     const [guess, setGuess] = useState<string>('');
     const [message, setMessage] = useState<{ content: string; color: 'red' | 'green' }>();
+    const inputRef = useRef<TextInput>(null);
+
+    useEffect(() => {
+        setTimeout(() => inputRef.current?.focus(), 50);
+    }, [currentWord]);
 
     /**
      * Generate hint text based on wrongAttempts from GameScreen
@@ -85,6 +90,7 @@ export default function Word({
                 }, 2000);
             } else {
                 setMessage({ color: 'red', content: 'Your answer is wrong' });
+                setTimeout(() => inputRef.current?.focus(), 50);
             }
             onWrongAnswer();
         }
@@ -135,11 +141,13 @@ export default function Word({
             )}
 
             <TextInput
+                ref={inputRef}
                 placeholder='Type in the translation'
                 style={[styles.input, { fontSize: normalFontSize }]}
                 onChangeText={changeGuess}
                 value={guess}
                 onSubmitEditing={guessWord}
+                autoFocus
             />
 
             <View style={styles.buttonRow}>
