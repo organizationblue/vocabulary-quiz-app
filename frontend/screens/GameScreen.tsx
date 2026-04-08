@@ -2,9 +2,10 @@ import {View, StyleSheet, useWindowDimensions } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Word from '../components/Word';
 import { RootStackParamList } from '../types/navigation';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { Text, Button } from 'react-native-paper';
 import type { Word as WordType } from '../../backend/src/types/words.js';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Game'>;
 
@@ -100,6 +101,11 @@ export default function GameScreen({ route, navigation }: Props) {
     if (gameOver) {
         return (
             <View style={styles.container}>
+                <ConfettiCannon
+                    count={100}
+                    origin={{ x: -10, y: 0 }}
+                    autoStart
+                />
                 <Text style={[styles.resultTitle, { fontSize: titleFontSize }]}>
                     Game Over!
                 </Text>
