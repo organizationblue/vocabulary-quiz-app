@@ -30,6 +30,47 @@ describe('GET /api/word', () => {
 
 });
 
+describe('GET /api/words', () => {
+
+    it('should return 20 words by default when no count is given', async () => {
+        const response = await request(app).get('/api/words');
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.data).toHaveLength(20);
+        expect(response.body.count).toBe(20);
+    });
+
+    it('should return the requested number of words when count is given', async () => {
+        const response = await request(app).get('/api/words?count=5');
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.data).toHaveLength(5);
+        expect(response.body.count).toBe(5);
+    });
+
+    it('should return 400 when count is negative', async () => {
+        const response = await request(app).get('/api/words?count=-1');
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+    });
+
+    it('should return at most all available words when count exceeds word list size', async () => {
+        const response = await request(app).get('/api/words?count=9999');
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.length).toBeLessThanOrEqual(277);
+        expect(response.body.count).toBe(response.body.data.length);
+    });
+
+    it('should return no duplicate words', async () => {
+        const response = await request(app).get('/api/words?count=50');
+        const englishWords = response.body.data.map((w: { english: string }) => w.english);
+        const unique = new Set(englishWords);
+        expect(unique.size).toBe(englishWords.length);
+    });
+
+});
+
 describe('Unknown routes', () => {
     it('should return 404 for unknown endpoint', async () => {
         const response = await request(app).get('/api/nonexistent');
