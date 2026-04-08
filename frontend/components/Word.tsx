@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     Button,
     Text,
@@ -33,11 +33,16 @@ export default function Word({
     onSkip,
 }: WordProps) {
     const { width } = useWindowDimensions();
-    const titleFontSize = width * 0.06;
-    const normalFontSize = width * 0.04;
+    const titleFontSize = Math.min(width * 0.06, 48);
+    const normalFontSize = Math.min(width * 0.04, 20);
 
     const [guess, setGuess] = useState<string>('');
     const [message, setMessage] = useState<{ content: string; color: 'red' | 'green' }>();
+    const inputRef = useRef<TextInput>(null);
+
+    useEffect(() => {
+        setTimeout(() => inputRef.current?.focus(), 50);
+    }, [currentWord]);
 
     /**
      * Generate hint text based on wrongAttempts from GameScreen
@@ -85,6 +90,7 @@ export default function Word({
                 }, 2000);
             } else {
                 setMessage({ color: 'red', content: 'Your answer is wrong' });
+                setTimeout(() => inputRef.current?.focus(), 50);
             }
             onWrongAnswer();
         }
@@ -135,21 +141,25 @@ export default function Word({
             )}
 
             <TextInput
+                ref={inputRef}
                 placeholder='Type in the translation'
                 style={[styles.input, { fontSize: normalFontSize }]}
                 onChangeText={changeGuess}
                 value={guess}
                 onSubmitEditing={guessWord}
+                autoFocus
             />
 
-            <Button
-                onPress={guessWord}
-                title="Submit"
-            />
-            <Button
-                onPress={handleSkip}
-                title="Skip"
-            />
+            <View style={styles.buttonRow}>
+                <Button
+                    onPress={guessWord}
+                    title="Submit"
+                />
+                <Button
+                    onPress={handleSkip}
+                    title="Skip"
+                />
+            </View>
         </View>
     );
 }
@@ -175,9 +185,11 @@ const styles = StyleSheet.create({
     },
     progressText: {
         color: '#999',
+        textAlign: 'center',
     },
     wordText: {
         fontWeight: 'bold',
+        textAlign: 'center',
     },
     input: {
         borderColor: 'grey',
@@ -189,5 +201,11 @@ const styles = StyleSheet.create({
         color: '#666',
         fontStyle: 'italic',
         marginTop: 8,
+        textAlign: 'center',
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 16,
     },
 });
