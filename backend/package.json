@@ -38,6 +38,7 @@
     "vitest": "^4.0.18"
   },
   "vitest": {
-    "environment": "node"
+    "environment": "node",
+    "setupFiles": ["src/tests/setup.ts"]
   }
 }
