@@ -18,6 +18,8 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout repository
@@ -30,6 +32,9 @@ jobs:
 
       - name: Install backend dependencies
         run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Run backend tests
         run: npm test
