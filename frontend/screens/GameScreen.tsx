@@ -2,7 +2,8 @@ import {View, StyleSheet, useWindowDimensions } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Word from '../components/Word';
 import { RootStackParamList } from '../types/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import ConfettiCannon from 'react-native-confetti-cannon';
 import { Text, Button } from 'react-native-paper';
 import type { Word as WordType } from '../types/navigation';
 
