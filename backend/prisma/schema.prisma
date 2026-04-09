@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  nickname  String   @unique
+  createdAt DateTime @default(now())
+  scores    Score[]
+}
+
+model Score {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  score     Float
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}

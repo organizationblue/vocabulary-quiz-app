@@ -14,6 +14,8 @@ export default function NicknameScreen({ navigation }: Props) {
     const [snackbarVisible, setSnackbarVisible] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
     const handleSubmit = async () => {
         const trimmed = nickname.trim();
 
@@ -23,16 +25,38 @@ export default function NicknameScreen({ navigation }: Props) {
             return;
         }
 
-        const existing = await getItem(STORAGE_KEYS.NICKNAME);
-        const isReturning = existing === trimmed;
+        try {
+            const response = await fetch (`${API_URL}/api/user`, {
+                method: 'POST',
+                headers: {'Content-type': 'application/json'},
+                body: JSON.stringify({ nickname: trimmed}),
+            });
 
-        await setItem(STORAGE_KEYS.NICKNAME, trimmed);
+            const json = await response.json();
+            const isReturning = json.returning;
 
-        setSnackbarMessage(
-            isReturning
-                ? `Welcome back, ${trimmed}!`
-                : `Welcome, ${trimmed}!`
-        );
+            await setItem(STORAGE_KEYS.NICKNAME, trimmed);
+        
+            setSnackbarMessage(
+                isReturning
+                    ? `Welcome back, ${trimmed}!`
+                    : `Welcome, ${trimmed}!`
+            );
+
+        } catch (error) {
+            // Uses AsyncStorage if API fails
+            console.error('Error registering user:', error);
+            const existing = await getItem(STORAGE_KEYS.NICKNAME);
+            const isReturning = existing === trimmed;
+            await setItem(STORAGE_KEYS.NICKNAME, trimmed);
+
+            setSnackbarMessage(
+                isReturning
+                    ? `Welcome back, ${trimmed}!`
+                    : `Welcome, ${trimmed}!`
+            );
+        }
+
         setSnackbarVisible(true);
 
         setTimeout(() => {
