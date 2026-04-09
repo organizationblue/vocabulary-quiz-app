@@ -18,8 +18,8 @@ const calculateWordScore = (wrongAttempts: number, wordLength: number): number =
 export default function GameScreen({ route, navigation }: Props) {
     const { nickname } = route.params;
     const { width } = useWindowDimensions();
-    const titleFontSize = width * 0.06;
-    const normalFontSize = width * 0.04;
+    const titleFontSize = Math.min(width * 0.06, 48);
+    const normalFontSize = Math.min(width * 0.04, 20);
 
     const [wordPool, setWordPool] = useState<WordType[]>([]);
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -115,6 +115,11 @@ export default function GameScreen({ route, navigation }: Props) {
     if (gameOver) {
         return (
             <View style={styles.container}>
+                <ConfettiCannon
+                    count={100}
+                    origin={{ x: -10, y: 0 }}
+                    autoStart
+                />
                 <Text style={[styles.resultTitle, { fontSize: titleFontSize }]}>
                     Game Over!
                 </Text>
@@ -175,15 +180,18 @@ const styles = StyleSheet.create({
     resultTitle: {
         fontWeight: 'bold',
         marginBottom: 16,
+        textAlign: 'center',
     },
     resultScore: {
         fontWeight: 'bold',
         color: '#4CAF50',
         marginBottom: 16,
+        textAlign: 'center',
     },
     resultNickname: {
         color: '#666',
         marginBottom: 32,
+        textAlign: 'center',
     },
     button: {
         width: '100%',
