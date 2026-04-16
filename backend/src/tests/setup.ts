@@ -9,6 +9,15 @@ vi.mock('../lib/prisma.js', () => ({
         },
         score: {
             create: vi.fn().mockResolvedValue({ id: 1, userId: 1, score: 10 }),
+            findMany: vi.fn().mockResolvedValue([
+                {
+                    id: 1,
+                    userId: 1,
+                    score: 10,
+                    createdAt: new Date('2026-04-16T10:00:00.000Z'),
+                    user: { nickname: 'test' },
+                },
+            ]),
         },
     },
 }));

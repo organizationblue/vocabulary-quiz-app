@@ -78,3 +78,29 @@ describe('Unknown routes', () => {
         expect(response.body.success).toBe(false);
     });
 });
+
+describe('GET /api/score', () => {
+    it('should return 200 OK', async () => {
+        const response = await request(app).get('/api/score');
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+    });
+
+    it('should return scoreboard entries with nickname and score', async () => {
+        const response = await request(app).get('/api/score');
+
+        expect(response.body.count).toBeGreaterThan(0);
+        expect(response.body.data[0]).toMatchObject({
+            nickname: 'test',
+            score: 10,
+        });
+    });
+
+    it('should reject invalid limit values', async () => {
+        const response = await request(app).get('/api/score?limit=0');
+
+        expect(response.status).toBe(400);
+        expect(response.body.success).toBe(false);
+    });
+});

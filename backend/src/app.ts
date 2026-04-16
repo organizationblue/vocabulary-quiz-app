@@ -37,6 +37,15 @@ app.use(express.json());
                  english: { type: 'string' },
                  finnish: { type: 'string' }
                }
+             },
+             ScoreEntry: {
+               type: 'object',
+               properties: {
+                 id: { type: 'integer' },
+                 nickname: { type: 'string' },
+                 score: { type: 'number' },
+                 createdAt: { type: 'string', format: 'date-time' }
+               }
              }
            }
          },
@@ -267,6 +276,84 @@ app.post('/api/score', async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: 'Failed to save score',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
+
+/**
+ * @openapi
+ * /api/score:
+ *   get:
+ *     summary: Fetch scoreboard scores
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of scores to return
+ *     responses:
+ *       200:
+ *         description: Scoreboard entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: integer
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ScoreEntry'
+ *       400:
+ *         description: Invalid limit parameter
+ */
+app.get('/api/score', async (req: Request, res: Response) => {
+    try {
+        const rawLimit = req.query.limit as string | undefined;
+        const limit = rawLimit ? parseInt(rawLimit, 10) : 10;
+
+        if (Number.isNaN(limit) || limit <= 0) {
+            res.status(400).json({
+                success: false,
+                message: 'Limit must be a positive number',
+            });
+            return;
+        }
+
+        const scores = await prisma.score.findMany({
+            take: Math.min(limit, 50),
+            orderBy: [
+                { score: 'desc' },
+                { createdAt: 'asc' },
+            ],
+            include: {
+                user: {
+                    select: {
+                        nickname: true,
+                    },
+                },
+            },
+        });
+
+        res.status(200).json({
+            success: true,
+            count: scores.length,
+            data: scores.map((entry) => ({
+                id: entry.id,
+                nickname: entry.user.nickname,
+                score: entry.score,
+                createdAt: entry.createdAt,
+            })),
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch scores',
             error: error instanceof Error ? error.message : 'Unknown error',
         });
     }
