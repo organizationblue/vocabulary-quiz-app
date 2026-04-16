@@ -12,6 +12,19 @@ const PORT = process.env.PORT || 8080;
 
 export const app = express();
 
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'https://vocabulary-quiz-app.onrender.com',  // Render frontend
+    'http://localhost:3000',                       // Local development
+    'http://localhost:8081',                       // Expo local
+    'http://192.168.10.57:8081',                   // Expo on device (adjust IP as needed)
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 app.use(cors());
 app.use(express.json());
 
