@@ -7,8 +7,8 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "vitest run --config vitest.config.mjs",
+    "test:watch": "vitest --config vitest.config.mjs",
     "build": "tsc"
   },
   "keywords": [],
@@ -36,9 +36,5 @@
     "tsx": "^4.7.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
-  },
-  "vitest": {
-    "environment": "node",
-    "setupFiles": ["src/tests/setup.ts"]
   }
 }
