@@ -193,6 +193,44 @@ The project uses **GitHub Actions** for continuous integration:
 **Required Secret:**
 - `DATABASE_URL` - Add your PostgreSQL connection string to repository secrets
 
+## 🗄️ Database Schema
+
+The application uses Prisma ORM with PostgreSQL. The database consists of two main tables:
+
+### User Model
+```prisma
+model User {
+  id        Int      @id @default(autoincrement())
+  nickname  String   @unique
+  scores    Score[]
+  createdAt DateTime @default(now())
+}
+```
+- **id**: Auto-incrementing primary key
+- **nickname**: Unique username for the player
+- **scores**: One-to-many relationship with Score table
+- **createdAt**: Timestamp when user was created
+
+### Score Model
+```prisma
+model Score {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  score     Int
+  createdAt DateTime @default(now())
+}
+```
+- **id**: Auto-incrementing primary key
+- **userId**: Foreign key referencing User.id
+- **user**: Relation to User model
+- **score**: Integer representing the session score (0-20)
+- **createdAt**: Timestamp when score was recorded
+
+**Database Migrations:**
+- Initial migration: `20260403124136_init` - Creates User and Score tables with relationships
+
+
 ## 📊 Game Session Flow
 
 1. **Nickname Screen** - User enters/retrieves username
