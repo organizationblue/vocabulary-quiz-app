@@ -9,26 +9,17 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci
 
-# Copy source code
-COPY . .
-FROM node:20-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm install
-
+# Copy prisma schema
 COPY prisma ./prisma
+
+# Copy source code
 COPY src ./src
 
+# Generate Prisma client
 RUN npx prisma generate
-RUN npm run build
-
-CMD ["node", "dist/index.js"]
 
 # Build TypeScript
 RUN npm run build
-
 
 # Stage 2: Production image
 FROM node:20-alpine
