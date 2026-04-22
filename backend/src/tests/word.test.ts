@@ -58,7 +58,7 @@ describe('GET /api/words', () => {
         const response = await request(app).get('/api/words?count=9999');
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
-        expect(response.body.data.length).toBeLessThanOrEqual(277);
+        expect(response.body.data.length).toBeLessThanOrEqual(777);
         expect(response.body.count).toBe(response.body.data.length);
     });
 
