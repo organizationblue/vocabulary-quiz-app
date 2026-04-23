@@ -16,7 +16,7 @@ export const getWordCount = (): number => {
 };
 
 export const getRandomWords = (count: number): Word[] => {
-    const safeCount = Math.min(count, words.length);
+    const safeCount = Math.max(0, Math.min(count, words.length));
     const shuffled = [...words].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, safeCount);
 };
