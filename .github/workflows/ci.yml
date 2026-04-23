@@ -43,7 +43,7 @@ jobs:
         run: npm run build
 
   frontend:
-    name: React Native frontend (typecheck)
+    name: React Native frontend (typecheck & tests)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -60,6 +60,9 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm install
+
+      - name: Run frontend tests
+        run: npm run test
 
       - name: Typecheck Expo app
         run: npx tsc -p tsconfig.json
