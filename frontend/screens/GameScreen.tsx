@@ -11,7 +11,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Game'>;
 
 const SESSION_SIZE = 20;
 
-const calculateWordScore = (wrongAttempts: number, wordLength: number): number => {
+export const calculateWordScore = (wrongAttempts: number, wordLength: number): number => {
     const raw = Math.max(0, wordLength - wrongAttempts) / wordLength;
     return Math.round(raw * 10) / 10;
 };
@@ -85,7 +85,8 @@ export default function GameScreen({ route, navigation }: Props) {
         const currentWord = wordPool[currentWordIndex];
         if (!currentWord) return;
         const wordScore = calculateWordScore(wrongAttempts, currentWord.english.length);
-        const newScore = Math.round((score + wordScore) * 10) / 10;        setScore(newScore);
+        const newScore = Math.round((score + wordScore) * 10) / 10;
+        setScore(newScore);
         advanceWord(newScore);
     };
 
