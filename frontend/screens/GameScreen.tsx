@@ -1,4 +1,4 @@
-import {View, StyleSheet, useWindowDimensions } from 'react-native';
+﻿import {View, StyleSheet, useWindowDimensions } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Word from '../components/Word';
 import { RootStackParamList } from '../types/navigation';
@@ -17,7 +17,7 @@ export const calculateWordScore = (wrongAttempts: number, wordLength: number): n
 };
 
 export default function GameScreen({ route, navigation }: Props) {
-    const { nickname } = route.params;
+    const { nickname, sourceLanguage, targetLanguage } = route.params;
     const { width } = useWindowDimensions();
     const titleFontSize = Math.min(width * 0.06, 48);
     const normalFontSize = Math.min(width * 0.04, 20);
@@ -53,7 +53,9 @@ export default function GameScreen({ route, navigation }: Props) {
             setCurrentWordIndex(0);
             setGameOver(false);
 
-            const response = await fetch(`${API_URL}/api/words?count=${SESSION_SIZE}`);
+            const response = await fetch(
+                `${API_URL}/api/words?count=${SESSION_SIZE}&sourceLanguage=${sourceLanguage}&targetLanguage=${targetLanguage}`
+            );
             const json = await response.json();
 
             if (!response.ok) {
@@ -84,7 +86,7 @@ export default function GameScreen({ route, navigation }: Props) {
     const handleCorrectAnswer = () => {
         const currentWord = wordPool[currentWordIndex];
         if (!currentWord) return;
-        const wordScore = calculateWordScore(wrongAttempts, currentWord.english.length);
+        const wordScore = calculateWordScore(wrongAttempts, currentWord.answer.length);
         const newScore = Math.round((score + wordScore) * 10) / 10;
         setScore(newScore);
         advanceWord(newScore);
@@ -165,7 +167,7 @@ export default function GameScreen({ route, navigation }: Props) {
                 onCorrectAnswer={handleCorrectAnswer}
                 onWrongAnswer={handleWrongAnswer}
                 onSkip={handleSkip}
-                
+
             />
         </View>
     );
