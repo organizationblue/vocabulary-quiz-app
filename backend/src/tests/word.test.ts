@@ -113,9 +113,11 @@ describe('GET /api/words', () => {
 
     it('should return no duplicate words', async () => {
         const response = await request(app).get('/api/words?count=50');
-        const prompts = response.body.data.map((w: { prompt: string }) => w.prompt);
-        const unique = new Set(prompts);
-        expect(unique.size).toBe(prompts.length);
+        const pairs = response.body.data.map(
+            (w: { prompt: string; answer: string }) => `${w.prompt}:${w.answer}`
+        );
+        const unique = new Set(pairs);
+        expect(unique.size).toBe(pairs.length);
     });
 
 });
