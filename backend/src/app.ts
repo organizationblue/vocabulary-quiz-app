@@ -3,12 +3,16 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import cors from 'cors';
 import { getRandomWord, getRandomWords } from './service/wordService.js';
+import { isSupportedLanguage, SUPPORTED_LANGUAGES } from './types/words.js';
 /** https://dev.to/qbentil/swagger-express-documenting-your-nodejs-rest-api-4lj7 */
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import { prisma } from './lib/prisma.js';
+import type { Language } from './types/words.js';
 
 const PORT = process.env.PORT || 8080;
+const DEFAULT_SOURCE_LANGUAGE: Language = 'finnish';
+const DEFAULT_TARGET_LANGUAGE: Language = 'english';
 
 export const app = express();
 
@@ -52,13 +56,13 @@ app.use(express.json());
          ],
          components: {
            schemas: {
-             Word: {
-               type: 'object',
-               properties: {
-                 english: { type: 'string' },
-                 finnish: { type: 'string' }
-               }
-             }
+            Word: {
+              type: 'object',
+              properties: {
+                prompt: { type: 'string', description: 'Finnish word to translate' },
+                answer: { type: 'string', description: 'Correct translation in the requested language' }
+              }
+            }
            }
          },
        },
@@ -68,11 +72,56 @@ app.use(express.json());
    const swaggerDocs = swaggerJSDoc(swaggerOptions);
    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
+const getLanguageSelection = (query: Request['query']) => {
+    const sourceLanguage =
+        (query.sourceLanguage as string | undefined) ?? DEFAULT_SOURCE_LANGUAGE;
+    const targetLanguage =
+        (query.targetLanguage as string | undefined) ??
+        (query.language as string | undefined) ??
+        DEFAULT_TARGET_LANGUAGE;
+
+    return { sourceLanguage, targetLanguage };
+};
+
+const getInvalidLanguageMessage = (
+    sourceLanguage: string,
+    targetLanguage: string
+): string | null => {
+    if (!isSupportedLanguage(sourceLanguage)) {
+        return `Unsupported source language "${sourceLanguage}". Supported: ${SUPPORTED_LANGUAGES.join(', ')}`;
+    }
+
+    if (!isSupportedLanguage(targetLanguage)) {
+        return `Unsupported target language "${targetLanguage}". Supported: ${SUPPORTED_LANGUAGES.join(', ')}`;
+    }
+
+    if (sourceLanguage === targetLanguage) {
+        return 'Source and target languages must be different';
+    }
+
+    return null;
+};
+
 /**
  * @openapi
  * /api/word:
  *   get:
  *     summary: Get a random word
+ *     parameters:
+ *       - in: query
+ *         name: sourceLanguage
+ *         schema:
+ *           type: string
+ *           enum: [finnish, english, swedish]
+ *           default: finnish
+ *         description: Language shown to the player
+ *       - in: query
+ *         name: targetLanguage
+ *         schema:
+ *           type: string
+ *           enum: [finnish, english, swedish]
+ *           default: english
+ *         description: Language the player should translate into
  *     responses:
  *       200:
  *         description: A random word
@@ -85,11 +134,23 @@ app.use(express.json());
  *                   type: boolean
  *                 data:
  *                   $ref: '#/components/schemas/Word'
+ *       400:
+ *         description: Unsupported language
  */
 app.get('/api/word', (req: Request, res: Response) => {
   try {
-    const word = getRandomWord();
+    const { sourceLanguage, targetLanguage } = getLanguageSelection(req.query);
+    const invalidLanguageMessage = getInvalidLanguageMessage(sourceLanguage, targetLanguage);
 
+    if (invalidLanguageMessage) {
+      res.status(400).json({
+        success: false,
+        message: invalidLanguageMessage,
+      });
+      return;
+    }
+
+    const word = getRandomWord(sourceLanguage as Language, targetLanguage as Language);
     res.status(200).json({
       success: true,
       data: word,
@@ -116,6 +177,20 @@ app.get('/api/word', (req: Request, res: Response) => {
  *           type: integer
  *           default: 20
  *         description: Number of unique words to return
+ *       - in: query
+ *         name: sourceLanguage
+ *         schema:
+ *           type: string
+ *           enum: [finnish, english, swedish]
+ *           default: finnish
+ *         description: Language shown to the player
+ *       - in: query
+ *         name: targetLanguage
+ *         schema:
+ *           type: string
+ *           enum: [finnish, english, swedish]
+ *           default: english
+ *         description: Language the player should translate into
  *     responses:
  *       200:
  *         description: Array of unique random words
@@ -133,11 +208,12 @@ app.get('/api/word', (req: Request, res: Response) => {
  *                   items:
  *                     $ref: '#/components/schemas/Word'
  *       400:
- *         description: Invalid count parameter
+ *         description: Invalid count or unsupported language
  */
 app.get('/api/words', (req: Request, res: Response) => {
     try {
         const count = parseInt(req.query.count as string) || 20;
+        const { sourceLanguage, targetLanguage } = getLanguageSelection(req.query);
 
         if (count <= 0) {
             res.status(400).json({
@@ -147,7 +223,21 @@ app.get('/api/words', (req: Request, res: Response) => {
             return;
         }
 
-        const words = getRandomWords(count);
+        const invalidLanguageMessage = getInvalidLanguageMessage(sourceLanguage, targetLanguage);
+
+        if (invalidLanguageMessage) {
+            res.status(400).json({
+                success: false,
+                message: invalidLanguageMessage,
+            });
+            return;
+        }
+
+        const words = getRandomWords(
+            count,
+            sourceLanguage as Language,
+            targetLanguage as Language
+        );
         res.status(200).json({
             success: true,
             count: words.length,

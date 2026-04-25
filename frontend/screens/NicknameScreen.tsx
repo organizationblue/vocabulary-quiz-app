@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { View, StyleSheet, Button, useWindowDimensions } from 'react-native';
-import { Text, TextInput, Snackbar } from 'react-native-paper';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { Text, TextInput, Snackbar, Menu, Button, Icon } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
+import { RootStackParamList, Language, LANGUAGE_OPTIONS } from '../types/navigation';
 import { getItem, setItem, STORAGE_KEYS } from '../utils/storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Nickname'>;
@@ -11,10 +11,25 @@ export default function NicknameScreen({ navigation }: Props) {
     const { width } = useWindowDimensions();
     const titleFontSize = Math.min(width * 0.06, 48);
     const [nickname, setNickname] = useState<string>('');
+    const [sourceLanguage, setSourceLanguage] = useState<Language>('finnish');
+    const [targetLanguage, setTargetLanguage] = useState<Language>('english');
+    const [sourceMenuVisible, setSourceMenuVisible] = useState<boolean>(false);
+    const [targetMenuVisible, setTargetMenuVisible] = useState<boolean>(false);
     const [snackbarVisible, setSnackbarVisible] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+    const sourceLanguageLabel =
+        LANGUAGE_OPTIONS.find(option => option.value === sourceLanguage)?.label ?? sourceLanguage;
+    const targetLanguageLabel =
+        LANGUAGE_OPTIONS.find(option => option.value === targetLanguage)?.label ?? targetLanguage;
+    const availableSourceLanguages = LANGUAGE_OPTIONS.filter(
+        option => option.value !== targetLanguage
+    );
+    const availableTargetLanguages = LANGUAGE_OPTIONS.filter(
+        option => option.value !== sourceLanguage
+    );
 
     const handleSubmit = async () => {
         const trimmed = nickname.trim();
@@ -60,7 +75,11 @@ export default function NicknameScreen({ navigation }: Props) {
         setSnackbarVisible(true);
 
         setTimeout(() => {
-            navigation.navigate('Game', { nickname: trimmed });
+            navigation.navigate('Game', {
+                nickname: trimmed,
+                sourceLanguage,
+                targetLanguage,
+            });
         }, 1500);
     };
 
@@ -70,7 +89,7 @@ export default function NicknameScreen({ navigation }: Props) {
                 Vocabulary Quiz
             </Text>
             <Text style={styles.subtitle}>
-                Enter your nickname to start
+                Enter your nickname and choose the quiz languages
             </Text>
             <TextInput
                 label="Nickname"
@@ -82,10 +101,66 @@ export default function NicknameScreen({ navigation }: Props) {
                 autoCapitalize='none'
                 onSubmitEditing={handleSubmit}
             />
+            <View style={styles.languageContainer}>
+                <Menu
+                    visible={sourceMenuVisible}
+                    onDismiss={() => setSourceMenuVisible(false)}
+                    anchor={
+                        <Button
+                            mode="outlined"
+                            onPress={() => setSourceMenuVisible(true)}
+                            style={styles.dropdownButton}
+                            contentStyle={styles.dropdownButtonContent}
+                        >
+                            {sourceLanguageLabel}
+                        </Button>
+                    }
+                >
+                    {availableSourceLanguages.map(option => (
+                        <Menu.Item
+                            key={option.value}
+                            onPress={() => {
+                                setSourceLanguage(option.value);
+                                setSourceMenuVisible(false);
+                            }}
+                            title={option.label}
+                        />
+                    ))}
+                </Menu>
+                <Icon source="arrow-right" size={24} color="#666" />
+                <Menu
+                    visible={targetMenuVisible}
+                    onDismiss={() => setTargetMenuVisible(false)}
+                    anchor={
+                        <Button
+                            mode="outlined"
+                            onPress={() => setTargetMenuVisible(true)}
+                            style={styles.dropdownButton}
+                            contentStyle={styles.dropdownButtonContent}
+                        >
+                            {targetLanguageLabel}
+                        </Button>
+                    }
+                >
+                    {availableTargetLanguages.map(option => (
+                        <Menu.Item
+                            key={option.value}
+                            onPress={() => {
+                                setTargetLanguage(option.value);
+                                setTargetMenuVisible(false);
+                            }}
+                            title={option.label}
+                        />
+                    ))}
+                </Menu>
+            </View>
             <Button
                 onPress={handleSubmit}
-                title="Start Game"
-            />
+                mode="contained"
+                style={styles.button}
+            >
+                Start Game
+            </Button>
             <Snackbar
                 visible={snackbarVisible}
                 onDismiss={() => setSnackbarVisible(false)}
@@ -117,6 +192,20 @@ const styles = StyleSheet.create({
     input: {
         width: '100%',
         maxWidth: 400
+    },
+    languageContainer: {
+        width: '100%',
+        maxWidth: 400,
+        flexDirection: 'row',
+        gap: 12,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    dropdownButton: {
+        flex: 1
+    },
+    dropdownButtonContent: {
+        minHeight: 48
     },
     button: {
         width: '100%',

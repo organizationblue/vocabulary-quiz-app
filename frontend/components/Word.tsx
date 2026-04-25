@@ -48,11 +48,11 @@ export default function Word({
      * Generate hint text based on wrongAttempts from GameScreen
      */
     function generateHint(): string {
-        if (!currentWord.english || wrongAttempts === 0) {
+        if (!currentWord.answer || wrongAttempts === 0) {
             return '';
         }
 
-        const answer = currentWord.english;
+        const answer = currentWord.answer;
         let hint = '';
 
         for (let i = 0; i < answer.length; i++) {
@@ -72,16 +72,16 @@ export default function Word({
      * Check if the guess is correct
      */
     function guessWord() {
-        if (guess.toLowerCase() === currentWord.english.toLowerCase()) {
+        if (guess.toLowerCase() === currentWord.answer.toLowerCase()) {
             setMessage({ color: 'green', content: 'Your answer is correct!' });
             setGuess('');
             onCorrectAnswer();
         } else {
             // Check if all letters are revealed after this wrong attempt
-            if (wrongAttempts + 1 >= currentWord.english.length) {
+            if (wrongAttempts + 1 >= currentWord.answer.length) {
                 setMessage({
                     color: 'red',
-                    content: `Wrong answer. The correct answer is: ${currentWord.english}`
+                    content: `Wrong answer. The correct answer is: ${currentWord.answer}`
                 });
                 setTimeout(() => {
                     setGuess('');
@@ -131,7 +131,7 @@ export default function Word({
             )}
 
             <Text style={[styles.wordText, { fontSize: titleFontSize }]}>
-                {currentWord.finnish}
+                {currentWord.prompt}
             </Text>
 
             {hintText && (
