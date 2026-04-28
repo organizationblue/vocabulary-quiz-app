@@ -51,9 +51,23 @@ describe('GET /api/word', () => {
     });
 
     it('should return 400 for an unsupported language', async () => {
-        const response = await request(app).get('/api/word?language=german');
+        const response = await request(app).get('/api/word?language=french');
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
+    });
+
+    it('should support german as a language', async () => {
+        const response = await request(app)
+            .get('/api/word?sourceLanguage=german&targetLanguage=english');
+        expect(response.status).toBe(200);
+        expect(response.body.data.prompt.length).toBeGreaterThan(0);
+    });
+
+    it('should support spanish as a language', async () => {
+        const response = await request(app)
+            .get('/api/word?sourceLanguage=spanish&targetLanguage=english');
+        expect(response.status).toBe(200);
+        expect(response.body.data.prompt.length).toBeGreaterThan(0);
     });
 
     it('should return 400 when source and target languages match', async () => {
@@ -91,7 +105,7 @@ describe('GET /api/words', () => {
     });
 
     it('should return 400 for an unsupported language', async () => {
-        const response = await request(app).get('/api/words?sourceLanguage=german');
+        const response = await request(app).get('/api/words?sourceLanguage=french');
         expect(response.status).toBe(400);
         expect(response.body.success).toBe(false);
     });
