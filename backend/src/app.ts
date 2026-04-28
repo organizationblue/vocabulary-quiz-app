@@ -4,6 +4,19 @@ import type { Request, Response } from 'express';
 import cors from 'cors';
 import { getRandomWord, getRandomWords } from './service/wordService.js';
 import { isSupportedLanguage, SUPPORTED_LANGUAGES } from './types/words.js';
+import {
+    formatZodError,
+    getBearerToken,
+    hashPassword,
+    loginSchema,
+    normalizeDisplayName,
+    normalizeUsername,
+    registerSchema,
+    signAuthToken,
+    toPublicUser,
+    verifyAuthToken,
+    verifyPassword,
+} from './auth.js';
 /** https://dev.to/qbentil/swagger-express-documenting-your-nodejs-rest-api-4lj7 */
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -101,6 +114,191 @@ const getInvalidLanguageMessage = (
 
     return null;
 };
+
+const getAuthenticatedUser = async (req: Request) => {
+    const token = getBearerToken(req.headers.authorization);
+
+    if (!token) {
+        return null;
+    }
+
+    const payload = verifyAuthToken(token);
+    const user = await prisma.user.findUnique({
+        where: { id: payload.userId },
+    });
+
+    if (!user || !user.username) {
+        return null;
+    }
+
+    return user;
+};
+
+/**
+ * @openapi
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user account
+ */
+app.post('/api/auth/register', async (req: Request, res: Response) => {
+    try {
+        const parsed = registerSchema.safeParse(req.body);
+
+        if (!parsed.success) {
+            res.status(400).json({
+                success: false,
+                message: formatZodError(parsed.error),
+            });
+            return;
+        }
+
+        const username = normalizeUsername(parsed.data.username);
+        const displayName = normalizeDisplayName(parsed.data.displayName, username);
+
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [{ username }, { nickname: username }],
+            },
+        });
+
+        if (existingUser) {
+            res.status(409).json({
+                success: false,
+                message: 'Username is already taken',
+            });
+            return;
+        }
+
+        const passwordHash = await hashPassword(parsed.data.password);
+        const user = await prisma.user.create({
+            data: {
+                nickname: username,
+                username,
+                displayName,
+                passwordHash,
+            },
+        });
+
+        const publicUser = toPublicUser(user);
+        const token = signAuthToken({
+            userId: publicUser.id,
+            username: publicUser.username,
+        });
+
+        res.status(201).json({
+            success: true,
+            data: {
+                token,
+                user: publicUser,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to register user',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
+
+/**
+ * @openapi
+ * /api/auth/login:
+ *   post:
+ *     summary: Log in to an existing user account
+ */
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+    try {
+        const parsed = loginSchema.safeParse(req.body);
+
+        if (!parsed.success) {
+            res.status(400).json({
+                success: false,
+                message: formatZodError(parsed.error),
+            });
+            return;
+        }
+
+        const username = normalizeUsername(parsed.data.username);
+        const user = await prisma.user.findUnique({
+            where: { username },
+        });
+
+        if (!user?.passwordHash || !user.username) {
+            res.status(401).json({
+                success: false,
+                message: 'Invalid username or password',
+            });
+            return;
+        }
+
+        const isPasswordValid = await verifyPassword(
+            parsed.data.password,
+            user.passwordHash
+        );
+
+        if (!isPasswordValid) {
+            res.status(401).json({
+                success: false,
+                message: 'Invalid username or password',
+            });
+            return;
+        }
+
+        const publicUser = toPublicUser(user);
+        const token = signAuthToken({
+            userId: publicUser.id,
+            username: publicUser.username,
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                token,
+                user: publicUser,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to log in user',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
+
+/**
+ * @openapi
+ * /api/auth/me:
+ *   get:
+ *     summary: Get the currently authenticated user
+ */
+app.get('/api/auth/me', async (req: Request, res: Response) => {
+    try {
+        const user = await getAuthenticatedUser(req);
+
+        if (!user) {
+            res.status(401).json({
+                success: false,
+                message: 'Authentication required',
+            });
+            return;
+        }
+
+        res.status(200).json({
+            success: true,
+            data: {
+                user: toPublicUser(user),
+            },
+        });
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message: 'Invalid or expired authentication token',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
 
 /**
  * @openapi
