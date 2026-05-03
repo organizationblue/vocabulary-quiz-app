@@ -1,9 +1,23 @@
 import 'dotenv/config';
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import { getRandomWord, getRandomWords } from './service/wordService.js';
 import { isSupportedLanguage, SUPPORTED_LANGUAGES } from './types/words.js';
+import {
+    formatZodError,
+    getBearerToken,
+    hashPassword,
+    loginSchema,
+    normalizeDisplayName,
+    normalizeUsername,
+    registerSchema,
+    scoreSubmissionSchema,
+    signAuthToken,
+    toPublicUser,
+    verifyAuthToken,
+    verifyPassword,
+} from './auth.js';
 /** https://dev.to/qbentil/swagger-express-documenting-your-nodejs-rest-api-4lj7 */
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -102,6 +116,212 @@ const getInvalidLanguageMessage = (
     return null;
 };
 
+const getAuthenticatedUser = async (req: Request) => {
+    const token = getBearerToken(req.headers.authorization);
+
+    if (!token) {
+        return null;
+    }
+
+    const payload = verifyAuthToken(token);
+    const user = await prisma.user.findUnique({
+        where: { id: payload.userId },
+    });
+
+    if (!user || !user.username) {
+        return null;
+    }
+
+    return user;
+};
+
+type AuthenticatedRequest = Request & {
+    authUser?: Awaited<ReturnType<typeof prisma.user.findUnique>>;
+};
+
+const requireAuth = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const user = await getAuthenticatedUser(req);
+
+        if (!user) {
+            res.status(401).json({
+                success: false,
+                message: 'Authentication required',
+            });
+            return;
+        }
+
+        req.authUser = user;
+        next();
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message: 'Invalid or expired authentication token',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+};
+
+/**
+ * @openapi
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user account
+ */
+app.post('/api/auth/register', async (req: Request, res: Response) => {
+    try {
+        const parsed = registerSchema.safeParse(req.body);
+
+        if (!parsed.success) {
+            res.status(400).json({
+                success: false,
+                message: formatZodError(parsed.error),
+            });
+            return;
+        }
+
+        const username = normalizeUsername(parsed.data.username);
+        const displayName = normalizeDisplayName(parsed.data.displayName, username);
+
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [{ username }, { nickname: username }],
+            },
+        });
+
+        if (existingUser) {
+            res.status(409).json({
+                success: false,
+                message: 'Username is already taken',
+            });
+            return;
+        }
+
+        const passwordHash = await hashPassword(parsed.data.password);
+        const user = await prisma.user.create({
+            data: {
+                nickname: username,
+                username,
+                displayName,
+                passwordHash,
+            },
+        });
+
+        const publicUser = toPublicUser(user);
+        const token = signAuthToken({
+            userId: publicUser.id,
+            username: publicUser.username,
+        });
+
+        res.status(201).json({
+            success: true,
+            data: {
+                token,
+                user: publicUser,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to register user',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
+
+/**
+ * @openapi
+ * /api/auth/login:
+ *   post:
+ *     summary: Log in to an existing user account
+ */
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+    try {
+        const parsed = loginSchema.safeParse(req.body);
+
+        if (!parsed.success) {
+            res.status(400).json({
+                success: false,
+                message: formatZodError(parsed.error),
+            });
+            return;
+        }
+
+        const username = normalizeUsername(parsed.data.username);
+        const user = await prisma.user.findUnique({
+            where: { username },
+        });
+
+        if (!user?.passwordHash || !user.username) {
+            res.status(401).json({
+                success: false,
+                message: 'Invalid username or password',
+            });
+            return;
+        }
+
+        const isPasswordValid = await verifyPassword(
+            parsed.data.password,
+            user.passwordHash
+        );
+
+        if (!isPasswordValid) {
+            res.status(401).json({
+                success: false,
+                message: 'Invalid username or password',
+            });
+            return;
+        }
+
+        const publicUser = toPublicUser(user);
+        const token = signAuthToken({
+            userId: publicUser.id,
+            username: publicUser.username,
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                token,
+                user: publicUser,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to log in user',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
+
+/**
+ * @openapi
+ * /api/auth/me:
+ *   get:
+ *     summary: Get the currently authenticated user
+ */
+app.get('/api/auth/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        res.status(200).json({
+            success: true,
+            data: {
+                user: toPublicUser(req.authUser!),
+            },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch authenticated user',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
+
 /**
  * @openapi
  * /api/word:
@@ -112,14 +332,14 @@ const getInvalidLanguageMessage = (
  *         name: sourceLanguage
  *         schema:
  *           type: string
- *           enum: [finnish, english, swedish]
+ *           enum: [finnish, english, swedish, german, spanish]
  *           default: finnish
  *         description: Language shown to the player
  *       - in: query
  *         name: targetLanguage
  *         schema:
  *           type: string
- *           enum: [finnish, english, swedish]
+ *           enum: [finnish, english, swedish, german, spanish]
  *           default: english
  *         description: Language the player should translate into
  *     responses:
@@ -181,14 +401,14 @@ app.get('/api/word', (req: Request, res: Response) => {
  *         name: sourceLanguage
  *         schema:
  *           type: string
- *           enum: [finnish, english, swedish]
+ *           enum: [finnish, english, swedish, german, spanish]
  *           default: finnish
  *         description: Language shown to the player
  *       - in: query
  *         name: targetLanguage
  *         schema:
  *           type: string
- *           enum: [finnish, english, swedish]
+ *           enum: [finnish, english, swedish, german, spanish]
  *           default: english
  *         description: Language the player should translate into
  *     responses:
@@ -321,7 +541,9 @@ app.post('/api/user', async (req: Request, res: Response) => {
  * @openapi
  * /api/score:
  *   post:
- *     summary: Save a session score for a user
+ *     summary: Save a session score for the authenticated user
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -329,44 +551,63 @@ app.post('/api/user', async (req: Request, res: Response) => {
  *           schema:
  *             type: object
  *             properties:
- *               nickname:
- *                 type: string
  *               score:
  *                 type: number
+ *               sourceLanguage:
+ *                 type: string
+ *                 enum: [finnish, english, swedish, german, spanish]
+ *               targetLanguage:
+ *                 type: string
+ *                 enum: [finnish, english, swedish, german, spanish]
  *     responses:
  *       201:
  *         description: Score saved successfully
- *       404:
- *         description: User not found
+ *       401:
+ *         description: Authentication required
  */
-app.post('/api/score', async (req: Request, res: Response) => {
+app.post('/api/score', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { nickname, score } = req.body as { nickname: string; score: number };
+        const parsed = scoreSubmissionSchema.safeParse(req.body);
 
-        if (!nickname || score === undefined) {
+        if (!parsed.success) {
             res.status(400).json({
                 success: false,
-                message: 'Nickname and score are required',
+                message: formatZodError(parsed.error),
             });
             return;
         }
 
-        const user = await prisma.user.findUnique({
-            where: { nickname: nickname.trim() },
-        });
+        const { score, sourceLanguage, targetLanguage } = parsed.data;
 
-        if (!user) {
-            res.status(404).json({
+        if ((sourceLanguage && !targetLanguage) || (!sourceLanguage && targetLanguage)) {
+            res.status(400).json({
                 success: false,
-                message: 'User not found',
+                message: 'Both sourceLanguage and targetLanguage must be provided together',
             });
             return;
+        }
+
+        if (sourceLanguage && targetLanguage) {
+            const invalidLanguageMessage = getInvalidLanguageMessage(
+                sourceLanguage,
+                targetLanguage
+            );
+
+            if (invalidLanguageMessage) {
+                res.status(400).json({
+                    success: false,
+                    message: invalidLanguageMessage,
+                });
+                return;
+            }
         }
 
         const saved = await prisma.score.create({
             data: {
-                userId: user.id,
+                userId: req.authUser!.id,
                 score,
+                sourceLanguage: sourceLanguage ?? null,
+                targetLanguage: targetLanguage ?? null,
             },
         });
 

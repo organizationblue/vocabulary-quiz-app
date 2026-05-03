@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { Text, Button } from 'react-native-paper';
 import type { Word as WordType } from '../types/navigation';
+import { useAuth } from '../context/AuthContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Game'>;
 
@@ -17,10 +18,11 @@ export const calculateWordScore = (wrongAttempts: number, wordLength: number): n
 };
 
 export default function GameScreen({ route, navigation }: Props) {
-    const { nickname, sourceLanguage, targetLanguage } = route.params;
+    const { displayName, sourceLanguage, targetLanguage } = route.params;
     const { width } = useWindowDimensions();
     const titleFontSize = Math.min(width * 0.06, 48);
     const normalFontSize = Math.min(width * 0.04, 20);
+    const { token } = useAuth();
 
     const [wordPool, setWordPool] = useState<WordType[]>([]);
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -35,8 +37,15 @@ export default function GameScreen({ route, navigation }: Props) {
         try {
             await fetch(`${API_URL}/api/score`, {
                 method: 'POST',
-                headers: {'Content-type': 'application/json'},
-                body: JSON.stringify({ nickname, score: finalScore }),
+                headers: {
+                    'Content-type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({
+                    score: finalScore,
+                    sourceLanguage,
+                    targetLanguage,
+                }),
             });
         } catch (error) {
             console.error('Error saving score:', error);
@@ -132,7 +141,7 @@ export default function GameScreen({ route, navigation }: Props) {
                 </Text>
 
                 <Text style={[styles.resultNickname, { fontSize: normalFontSize }]}>
-                    Well done, {nickname}!
+                    Well done, {displayName}!
                 </Text>
 
                 <Button
@@ -145,10 +154,10 @@ export default function GameScreen({ route, navigation }: Props) {
 
                 <Button
                     mode="outlined"
-                    onPress={() => navigation.navigate('Nickname')}
+                    onPress={() => navigation.navigate('Start')}
                     style={styles.button}
                 >
-                    Change Nickname
+                    Change Languages
                 </Button>
                 </View>
         );
@@ -158,7 +167,7 @@ export default function GameScreen({ route, navigation }: Props) {
     return (
         <View style={styles.container}>
             <Word 
-                nickname={nickname}
+                nickname={displayName}
                 currentWord={currentWord}
                 wrongAttempts={wrongAttempts}
                 score={score}
