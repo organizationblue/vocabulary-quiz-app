@@ -8,6 +8,11 @@ export const STORAGE_KEYS = {
     AUTH_USER: 'vocabulary_quiz_auth_user',
 } as const;
 
+const canUseSecureStore =
+    typeof SecureStore.getItemAsync === 'function' &&
+    typeof SecureStore.setItemAsync === 'function' &&
+    typeof SecureStore.deleteItemAsync === 'function';
+
 export const getItem = async (key: string): Promise<string | null> => {
     try {
         return await AsyncStorage.getItem(key);
@@ -34,6 +39,10 @@ export const removeItem = async (key: string): Promise<void> => {
 };
 
 export const getSecureItem = async (key: string): Promise<string | null> => {
+    if (!canUseSecureStore) {
+        return getItem(key);
+    }
+
     try {
         return await SecureStore.getItemAsync(key);
     } catch (error) {
@@ -43,6 +52,11 @@ export const getSecureItem = async (key: string): Promise<string | null> => {
 };
 
 export const setSecureItem = async (key: string, value: string): Promise<void> => {
+    if (!canUseSecureStore) {
+        await setItem(key, value);
+        return;
+    }
+
     try {
         await SecureStore.setItemAsync(key, value);
     } catch (error) {
@@ -52,6 +66,11 @@ export const setSecureItem = async (key: string, value: string): Promise<void> =
 };
 
 export const removeSecureItem = async (key: string): Promise<void> => {
+    if (!canUseSecureStore) {
+        await removeItem(key);
+        return;
+    }
+
     try {
         await SecureStore.deleteItemAsync(key);
     } catch (error) {
