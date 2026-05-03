@@ -15,10 +15,23 @@ vi.mock('react-native', () => ({
 vi.mock('react-native-paper', () => ({
     Text: 'Text',
     Button: 'Button',
+    Snackbar: 'Snackbar',
+    TextInput: 'TextInput',
+    Menu: 'Menu',
+    Icon: 'Icon',
+    ActivityIndicator: 'ActivityIndicator',
+    PaperProvider: ({ children }: { children: React.ReactNode }) => children,
+    MD3LightTheme: {},
 }));
 
 vi.mock('react-native-confetti-cannon', () => ({
     default: 'ConfettiCannon',
+}));
+
+vi.mock('expo-secure-store', () => ({
+    getItemAsync: vi.fn().mockResolvedValue(null),
+    setItemAsync: vi.fn().mockResolvedValue(undefined),
+    deleteItemAsync: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('../../components/Word', () => ({

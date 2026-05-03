@@ -17,7 +17,7 @@ export const calculateWordScore = (wrongAttempts: number, wordLength: number): n
 };
 
 export default function GameScreen({ route, navigation }: Props) {
-    const { nickname, sourceLanguage, targetLanguage } = route.params;
+    const { displayName, scoreIdentity, sourceLanguage, targetLanguage } = route.params;
     const { width } = useWindowDimensions();
     const titleFontSize = Math.min(width * 0.06, 48);
     const normalFontSize = Math.min(width * 0.04, 20);
@@ -36,7 +36,7 @@ export default function GameScreen({ route, navigation }: Props) {
             await fetch(`${API_URL}/api/score`, {
                 method: 'POST',
                 headers: {'Content-type': 'application/json'},
-                body: JSON.stringify({ nickname, score: finalScore }),
+                body: JSON.stringify({ nickname: scoreIdentity, score: finalScore }),
             });
         } catch (error) {
             console.error('Error saving score:', error);
@@ -132,7 +132,7 @@ export default function GameScreen({ route, navigation }: Props) {
                 </Text>
 
                 <Text style={[styles.resultNickname, { fontSize: normalFontSize }]}>
-                    Well done, {nickname}!
+                    Well done, {displayName}!
                 </Text>
 
                 <Button
@@ -145,10 +145,10 @@ export default function GameScreen({ route, navigation }: Props) {
 
                 <Button
                     mode="outlined"
-                    onPress={() => navigation.navigate('Nickname')}
+                    onPress={() => navigation.navigate('Start')}
                     style={styles.button}
                 >
-                    Change Nickname
+                    Change Languages
                 </Button>
                 </View>
         );
@@ -158,7 +158,7 @@ export default function GameScreen({ route, navigation }: Props) {
     return (
         <View style={styles.container}>
             <Word 
-                nickname={nickname}
+                nickname={displayName}
                 currentWord={currentWord}
                 wrongAttempts={wrongAttempts}
                 score={score}

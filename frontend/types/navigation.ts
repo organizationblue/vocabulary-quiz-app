@@ -14,9 +14,12 @@ export interface Word {
 }
 
 export type RootStackParamList = {
-    Nickname: undefined;
+    Login: undefined;
+    Register: undefined;
+    Start: undefined;
     Game: {
-        nickname: string;
+        displayName: string;
+        scoreIdentity: string;
         sourceLanguage: Language;
         targetLanguage: Language;
     };
