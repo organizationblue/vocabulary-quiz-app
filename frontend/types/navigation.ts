@@ -19,7 +19,6 @@ export type RootStackParamList = {
     Start: undefined;
     Game: {
         displayName: string;
-        scoreIdentity: string;
         sourceLanguage: Language;
         targetLanguage: Language;
     };

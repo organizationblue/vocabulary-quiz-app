@@ -108,7 +108,6 @@ export default function StartScreen({ navigation }: Props) {
 
                     navigation.navigate('Game', {
                         displayName: user.displayName,
-                        scoreIdentity: user.username,
                         sourceLanguage,
                         targetLanguage,
                     });

@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import type { Language } from './types/words.js';
 
 const USERNAME_REGEX = /^[a-z0-9_]+$/i;
 const PASSWORD_MIN_LENGTH = 8;
@@ -44,6 +45,12 @@ export const loginSchema = z.object({
     password: z.string().min(1, 'Password is required'),
 });
 
+export const scoreSubmissionSchema = z.object({
+    score: z.number().finite().min(0, 'Score must be zero or greater'),
+    sourceLanguage: z.string().trim().optional(),
+    targetLanguage: z.string().trim().optional(),
+});
+
 export interface AuthTokenPayload {
     userId: number;
     username: string;
@@ -54,6 +61,12 @@ export interface PublicUser {
     username: string;
     displayName: string;
     createdAt: Date;
+}
+
+export interface ScoreSubmission {
+    score: number;
+    sourceLanguage?: Language;
+    targetLanguage?: Language;
 }
 
 const getJwtSecret = (): string => {
