@@ -1,351 +1,351 @@
 # Vocabulary Quiz App
 
-A React Native/Expo vocabulary quiz application that helps users improve their language skills by translating words between English and Finnish (Other languages coming).
+A React Native/Expo vocabulary quiz application where users register, log in, choose a language pair, and play a 20-word translation session. Scores are stored in PostgreSQL and tied to the authenticated user.
 
 ## 🎯 Core Features
 
-1. **Word Translation Quiz** - Users see a word in Finnish and must translate it to English
-2. **Real-time Feedback** - Immediate visual feedback on correct/incorrect answers
-3. **Progressive Hints** - Reveals letters after each wrong attempt
-4. **Score Tracking** - Saves user scores to a PostgreSQL database
-5. **User Profiles** - Persistent user nicknames with score history
-6. **Confetti Celebration** - Visual feedback when completing a session
+1. **Account-based play** - Register, log in, restore session, and log out
+2. **Multi-language quiz sessions** - Choose a source and target language before each game
+3. **Real-time feedback** - Immediate response for correct and incorrect answers
+4. **Progressive hints** - Letters are revealed after wrong attempts
+5. **Score tracking** - Session scores are saved to the backend database
+6. **Language-pair-ready scores** - Scores are stored with the selected source and target language
+7. **Confetti celebration** - Session completion includes a game-over screen with confetti
+
+## 🌍 Supported Languages
+
+- Finnish
+- English
+- Swedish
+- German
+- Spanish
 
 ## 🛠️ Technology Stack
 
 ### Frontend
-- **React Native** with Expo
-- **TypeScript** for type safety
-- **React Navigation** (native-stack) for routing
-- **React Native Paper** for UI components
-- **AsyncStorage** for local persistence
-- **Confetti Cannon** for celebration animations
+- React Native with Expo
+- TypeScript
+- React Navigation (native-stack)
+- React Native Paper
+- AsyncStorage
+- Expo Secure Store with AsyncStorage fallback
 
 ### Backend
-- **Node.js** with Express.js
-- **TypeScript** for type safety
-- **Prisma ORM** with PostgreSQL adapter
-- **PostgreSQL** (Supabase) for data persistence
-- **Swagger/OpenAPI** for API documentation
-- **CORS** for cross-origin requests
+- Node.js with Express
+- TypeScript
+- Prisma ORM
+- PostgreSQL (Supabase)
+- JWT authentication
+- bcryptjs for password hashing
+- Zod for request validation
+- Swagger/OpenAPI
 
-### Testing & CI/CD
-- **Vitest** for backend unit tests
-- **Supertest** for API integration testing
-- **GitHub Actions** for CI/CD pipeline
+### Testing & CI
+- Vitest
+- Supertest
+- GitHub Actions
 
 ## 📁 Project Structure
 
-```
+```text
 vocabulary-quiz-app/
-├── .github/
-│   └── workflows/
-│       └── ci.yml              # GitHub Actions CI/CD pipeline
-├── .expo/                       # Expo configuration
-├── frontend/                    # React Native/Expo app
+├── frontend/
 │   ├── components/
-│   │   └── Word.tsx            # Quiz component with answer logic
+│   │   └── Word.tsx
+│   ├── context/
+│   │   └── AuthContext.tsx
 │   ├── screens/
-│   │   ├── NicknameScreen.tsx   # User registration/login
-│   │   ├── GameScreen.tsx       # Main game session screen
-│   │   └── HomeScreen.tsx       # App home/menu screen
-│   ├── services/
-│   │   └── service1.tsx         # Service utilities
+│   │   ├── LoginScreen.tsx
+│   │   ├── RegisterScreen.tsx
+│   │   ├── StartScreen.tsx
+│   │   └── GameScreen.tsx
 │   ├── types/
-│   │   └── navigation.ts        # Type definitions
+│   │   ├── auth.ts
+│   │   └── navigation.ts
 │   ├── utils/
-│   │   └── storage.ts           # AsyncStorage wrapper
-│   ├── assets/                  # Images and static assets
-│   ├── App.tsx                  # Root app component
-│   ├── index.ts                 # App entry point
-│   ├── app.json                 # Expo configuration
-│   ├── .env                     # API URL configuration
-│   └── package.json
-│
-└── backend/                     # Node.js/Express API
-    ├── src/
-    │   ├── app.ts              # Express app setup & routes
-    │   ├── index.ts            # Server entry point
-    │   ├── prisma.config.ts    # Prisma configuration
-    │   ├── vitest.config.ts    # Vitest configuration
-    │   ├── lib/
-    │   │   └── prisma.ts       # Prisma client setup with connection pooling
-    │   ├── service/
-    │   │   └── wordService.ts  # Word fetching logic
-    │   ├── data/
-    │   │   └── words.json      # Word dataset (277 words)
-    │   ├── tests/
-    │   │   ├── word.test.ts    # API endpoint tests
-    │   │   └── setup.ts        # Test configuration & mocks
-    │   ├── types/
-    │   │   └── words.ts        # TypeScript word types
-    │   ├── generated/
-    │   │   └── prisma/         # Auto-generated Prisma client
-    │   └── prisma/
-    │       ├── schema.prisma   # Database schema
-    │       └── migrations/     # Database migrations
-    ├── Dockerfile              # Docker configuration for deployment
-    ├── .env                    # Database & port config
-    └── package.json
+│   │   └── storage.ts
+│   └── App.tsx
+├── backend/
+│   ├── prisma/
+│   │   ├── migrations/
+│   │   └── schema.prisma
+│   ├── src/
+│   │   ├── app.ts
+│   │   ├── auth.ts
+│   │   ├── data/
+│   │   │   └── words.json
+│   │   ├── lib/
+│   │   │   └── prisma.ts
+│   │   ├── service/
+│   │   │   └── wordService.ts
+│   │   ├── tests/
+│   │   └── types/
+│   ├── prisma.config.ts
+│   └── Dockerfile
+└── .github/workflows/ci.yml
 ```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 20+
-- npm/yarn
-- PostgreSQL database (or Supabase)
-- Expo account (for Expo Go testing)
+- npm
+- PostgreSQL database or Supabase project
 
 ### Backend Setup
 
 ```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Generate Prisma client
 npx prisma generate
-
-# Set up environment variables
-# Copy .env and add your DATABASE_URL
-
-# Run development server
+npx prisma migrate deploy --schema prisma/schema.prisma
 npm run dev
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
 ```
 
-**Environment Variables (.env):**
-```
+**Environment variables** in `backend/.env`:
+
+```env
 PORT=8080
 DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+JWT_SECRET=your-long-random-secret
+```
+
+To generate a secret on Linux:
+
+```bash
+openssl rand -hex 32
 ```
 
 ### Frontend Setup
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Update API URL in .env
-# EXPO_PUBLIC_API_URL=http://YOUR_MACHINE_IP:8080
-
-# For localhost development
 npm start
-
-# For Expo Go on device
-# Scan QR code with Expo Go app
 ```
 
-**Environment Variables (.env):**
-```
+**Environment variables** in `frontend/.env`:
+
+```env
 EXPO_PUBLIC_API_URL=http://192.168.X.X:8080
 ```
 
-> **Note for Expo Go:** Use your machine's actual IP address (not `localhost`). Find it with `ipconfig` (Windows) or `ifconfig` (Linux/Mac).
+For Expo Go, use your machine IP instead of `localhost`.
 
 ## 🧪 Testing
 
-### Backend Tests
+### Backend
 
 ```bash
 cd backend
-
-# Run tests once
 npm test
-
-# Run tests in watch mode
-npm run test:watch
+npm run build
 ```
 
-**Test Coverage:**
-- ✅ Random word endpoint `/api/word`
-- ✅ Multiple words endpoint `/api/words` with count parameter
-- ✅ User creation/fetching `/api/user`
-- ✅ Score saving `/api/score`
-- ✅ Error handling and validation
-- ✅ Duplicate prevention
-- ✅ 404 handling
+### Frontend
 
-### CI/CD Pipeline
+```bash
+cd frontend
+npm test
+npx tsc -p tsconfig.json
+```
 
-The project uses **GitHub Actions** for continuous integration:
+### CI Pipeline
 
-1. **Backend Tests** - Runs on every push/PR
-   - Installs dependencies
-   - Generates Prisma client
-   - Runs all Vitest tests
-   - Builds TypeScript to JavaScript
+GitHub Actions currently runs:
 
-2. **Frontend TypeCheck** - Runs on every push/PR
-   - Installs dependencies
-   - Type-checks with TypeScript
-   - Validates React Native setup
+1. Backend tests
+2. Backend build
+3. Frontend tests
+4. Frontend typecheck
 
-**Required Secret:**
-- `DATABASE_URL` - Add your PostgreSQL connection string to repository secrets
+**Required GitHub secret:**
+
+- `DATABASE_URL`
 
 ## 🗄️ Database Schema
 
-The application uses Prisma ORM with PostgreSQL. The database consists of two main tables:
+### User
 
-### User Model
 ```prisma
 model User {
-  id        Int      @id @default(autoincrement())
-  nickname  String   @unique
-  scores    Score[]
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  nickname     String   @unique
+  username     String?  @unique
+  displayName  String?
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  scores       Score[]
 }
 ```
-- **id**: Auto-incrementing primary key
-- **nickname**: Unique username for the player
-- **scores**: One-to-many relationship with Score table
-- **createdAt**: Timestamp when user was created
 
-### Score Model
+- `username` is used for authentication
+- `displayName` is shown in the UI
+- `passwordHash` stores the hashed password
+- `nickname` remains for backward compatibility with older data
+
+### Score
+
 ```prisma
 model Score {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  score     Int
-  createdAt DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  score          Float
+  sourceLanguage String?
+  targetLanguage String?
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
 }
 ```
-- **id**: Auto-incrementing primary key
-- **userId**: Foreign key referencing User.id
-- **user**: Relation to User model
-- **score**: Integer representing the session score (0-20)
-- **createdAt**: Timestamp when score was recorded
 
-**Database Migrations:**
-- Initial migration: `20260403124136_init` - Creates User and Score tables with relationships
+- Scores belong to an authenticated user
+- Scores can be filtered later by language pair
 
+### Migrations
 
-## 📊 Game Session Flow
+- `20260403124136_init`
+- `20260427000000_add_auth_fields`
+- `20260503000000_add_score_languages`
 
-1. **Nickname Screen** - User enters/retrieves username
-2. **Game Screen** - 20-word session
-   - Display Finnish word
-   - User types English translation
-   - Show hints after each wrong attempt
-   - Score calculated based on attempts: `(wordLength - wrongAttempts) / wordLength`
-   - Progress through all 20 words
-3. **Game Over Screen** - Display final score with confetti animation
-4. **Score Saved** - User's score persists to database
+## 📊 Game Flow
+
+1. User opens the app
+2. Existing session is restored if a valid token is stored
+3. Logged-out users see `Login` and `Register`
+4. Logged-in users see `Start`
+5. User selects source and target language
+6. User plays a 20-word quiz session
+7. Final score is saved to the backend for that user and language pair
 
 ## 🔌 API Endpoints
 
-### GET `/api/word`
-Returns a random word.
+### Auth
 
-**Response:**
+#### `POST /api/auth/register`
+
+Register a new account.
+
 ```json
 {
-  "success": true,
-  "data": {
-    "english": "cat",
-    "finnish": "kissa"
-  }
+  "username": "player123",
+  "displayName": "Player One",
+  "password": "supersecret123"
 }
 ```
 
-### GET `/api/words?count=20`
-Returns multiple unique random words.
+#### `POST /api/auth/login`
 
-**Response:**
+Log in to an existing account.
+
 ```json
 {
-  "success": true,
-  "count": 20,
-  "data": [
-    { "english": "cat", "finnish": "kissa" },
-    { "english": "dog", "finnish": "koira" }
-  ]
+  "username": "player123",
+  "password": "supersecret123"
 }
 ```
 
-### POST `/api/user`
-Create or fetch user by nickname.
+#### `GET /api/auth/me`
 
-**Request:**
+Return the currently authenticated user.
+
+### Words
+
+#### `GET /api/word`
+
+Returns one random quiz word for a selected language pair.
+
+Example:
+
+```text
+/api/word?sourceLanguage=finnish&targetLanguage=english
+```
+
+#### `GET /api/words?count=20`
+
+Returns multiple unique quiz words for a session.
+
+Example:
+
+```text
+/api/words?count=20&sourceLanguage=english&targetLanguage=german
+```
+
+### Scores
+
+#### `POST /api/score`
+
+Save a score for the authenticated user.
+
 ```json
 {
-  "nickname": "player123"
+  "score": 15.4,
+  "sourceLanguage": "english",
+  "targetLanguage": "german"
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": { "id": 1, "nickname": "player123" },
-  "returning": false
-}
-```
+This endpoint requires a bearer token.
 
-### POST `/api/score`
-Save a session score.
+### Legacy
 
-**Request:**
-```json
-{
-  "nickname": "player123",
-  "score": 15
-}
-```
+#### `POST /api/user`
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": { "id": 1, "userId": 1, "score": 15 }
-}
-```
+Legacy nickname-based endpoint kept for backward compatibility with earlier app versions.
 
-### GET `/api-docs`
-Interactive Swagger API documentation.
+### Docs
+
+#### `GET /api-docs`
+
+Swagger UI for the backend API.
 
 ## 📈 Deployment
 
 ### Frontend
+
 **Live:** https://vocabulary-quiz-app.onrender.com
 
-Deployed to Render as a static Expo web build.
+Deployed to Render as an Expo web build.
 
-### Backend API
+### Backend
+
 **Live:** https://vocabulary-quiz-app-git-vocabulary-quiz-app.2.rahtiapp.fi
 
-Deployed to Rahti (OpenShift) with PostgreSQL on Supabase.
+Deployed to Rahti (OpenShift) with Supabase PostgreSQL.
 
-## 🔒 Environment Configuration
+### Production Environment Variables
 
-### Development (Localhost)
+Backend deployment should include:
 
-**Backend** - `backend/.env`
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `PORT` if needed by the platform
+
+After deploying backend schema changes, run:
+
+```bash
+cd backend
+npx prisma migrate deploy --schema prisma/schema.prisma
 ```
-PORT=8080
-DATABASE_URL=postgresql://...
-```
 
-**Frontend** - `frontend/.env`
-```
-EXPO_PUBLIC_API_URL=http://localhost:8080
-```
+## 🐛 Troubleshooting
 
-### Production (Deployed)
+### Frontend cannot reach backend
 
-**Backend** - Environment variables on Rahti
-**Frontend** - Built Expo web app
+- Check `EXPO_PUBLIC_API_URL`
+- Use your machine IP for Expo Go
+- Make sure the backend server is running
+
+### Authentication returns 500 in production
+
+- Verify `JWT_SECRET` is set in the backend environment
+- Verify the latest Prisma migrations have been applied to the production database
+
+### Prisma migration command fails
+
+- Run it from `backend/`
+- Use `npx prisma migrate deploy --schema prisma/schema.prisma`
+- Make sure `DATABASE_URL` is available in the environment
 
 ## 👥 Team Members
 
@@ -354,20 +354,3 @@ EXPO_PUBLIC_API_URL=http://localhost:8080
 - Elias Jungman
 - Henri Tomperi
 - Eetu Pärnänen
-
-## 🐛 Troubleshooting
-
-### Expo Go won't connect to backend
-- Ensure backend is running: `npm run dev` in `backend/`
-- Check API URL in `frontend/.env` - use your machine's IP, not `localhost`
-- Verify firewall isn't blocking port 8080
-
-### CI tests failing
-- Add `DATABASE_URL` secret to GitHub repository
-- Check that Prisma client is generated: `npx prisma generate`
-- Ensure Node.js version is 20+
-
-### Database connection errors
-- Verify `DATABASE_URL` format in `.env`
-- Check PostgreSQL/Supabase is accessible
-- Ensure SSL mode is set to "require" for remote databases

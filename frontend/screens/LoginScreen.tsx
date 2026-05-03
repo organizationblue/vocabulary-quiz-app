@@ -43,7 +43,7 @@ export default function LoginScreen({ navigation }: Props) {
     return (
         <View style={styles.container}>
             <Text style={[styles.title, { fontSize: titleFontSize }]}>
-                Welcome back
+                Welcome to VocabularyQuiz!
             </Text>
             <Text style={styles.subtitle}>
                 Log in to continue your language-specific quiz progress
