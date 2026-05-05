@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
     Button,
     Text,
     TextInput,
     View,
     StyleSheet,
-    useWindowDimensions
+    useWindowDimensions,
+    Pressable,
 } from 'react-native';
 import type { Word as WordType } from '../types/navigation';
 
@@ -33,16 +34,13 @@ export default function Word({
     onSkip,
 }: WordProps) {
     const { width } = useWindowDimensions();
+    const isCompact = width < 480;
     const titleFontSize = Math.min(width * 0.06, 48);
     const normalFontSize = Math.min(width * 0.04, 20);
 
     const [guess, setGuess] = useState<string>('');
     const [message, setMessage] = useState<{ content: string; color: 'red' | 'green' }>();
     const inputRef = useRef<TextInput>(null);
-
-    useEffect(() => {
-        setTimeout(() => inputRef.current?.focus(), 50);
-    }, [currentWord]);
 
     /**
      * Generate hint text based on wrongAttempts from GameScreen
@@ -90,7 +88,6 @@ export default function Word({
                 }, 2000);
             } else {
                 setMessage({ color: 'red', content: 'Your answer is wrong' });
-                setTimeout(() => inputRef.current?.focus(), 50);
             }
             onWrongAnswer();
         }
@@ -140,17 +137,23 @@ export default function Word({
                 </Text>
             )}
 
-            <TextInput
-                ref={inputRef}
-                placeholder='Type in the translation'
-                style={[styles.input, { fontSize: normalFontSize }]}
-                onChangeText={changeGuess}
-                value={guess}
-                onSubmitEditing={guessWord}
-                autoFocus
-            />
+            <Pressable
+                onPress={() => inputRef.current?.focus()}
+                style={styles.inputWrapper}
+            >
+                <TextInput
+                    ref={inputRef}
+                    placeholder='Type in the translation'
+                    style={[styles.input, { fontSize: normalFontSize }]}
+                    onChangeText={changeGuess}
+                    value={guess}
+                    onSubmitEditing={guessWord}
+                    returnKeyType="done"
+                    blurOnSubmit={false}
+                />
+            </Pressable>
 
-            <View style={styles.buttonRow}>
+            <View style={[styles.buttonRow, isCompact && styles.buttonRowCompact]}>
                 <Button
                     onPress={guessWord}
                     title="Submit"
@@ -167,8 +170,18 @@ export default function Word({
 const styles = StyleSheet.create({
     container: {
         width: '100%',
+        maxWidth: 460,
         padding: 20,
-        gap: 12
+        gap: 14,
+        borderWidth: 1,
+        borderColor: '#e5e5e5',
+        borderRadius: 18,
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOpacity: 0.04,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 2,
     },
     headerRow: {
         flexDirection: 'row',
@@ -191,11 +204,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
+    inputWrapper: {
+        width: '100%',
+    },
     input: {
         borderColor: 'grey',
         borderWidth: 1,
-        padding: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 12,
         borderRadius: 6,
+        width: '100%',
     },
     hintText: {
         color: '#666',
@@ -207,5 +225,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         gap: 16,
+    },
+    buttonRowCompact: {
+        justifyContent: 'space-between',
     },
 });

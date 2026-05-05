@@ -1,4 +1,11 @@
-﻿import {View, StyleSheet, useWindowDimensions } from 'react-native';
+﻿import {
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    View,
+    useWindowDimensions,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Word from '../components/Word';
 import { RootStackParamList } from '../types/navigation';
@@ -20,6 +27,7 @@ export const calculateWordScore = (wrongAttempts: number, wordLength: number): n
 export default function GameScreen({ route, navigation }: Props) {
     const { displayName, sourceLanguage, targetLanguage } = route.params;
     const { width } = useWindowDimensions();
+    const isCompact = width < 480;
     const titleFontSize = Math.min(width * 0.06, 48);
     const normalFontSize = Math.min(width * 0.04, 20);
     const { token } = useAuth();
@@ -165,20 +173,30 @@ export default function GameScreen({ route, navigation }: Props) {
     
 
     return (
-        <View style={styles.container}>
-            <Word 
-                nickname={displayName}
-                currentWord={currentWord}
-                wrongAttempts={wrongAttempts}
-                score={score}
-                currentWordNumber={currentWordIndex + 1}
-                sessionSize={SESSION_SIZE}
-                onCorrectAnswer={handleCorrectAnswer}
-                onWrongAnswer={handleWrongAnswer}
-                onSkip={handleSkip}
-
-            />
-        </View>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            <ScrollView
+                contentContainerStyle={[
+                    styles.contentContainer,
+                    isCompact && styles.contentContainerCompact,
+                ]}
+                keyboardShouldPersistTaps="handled"
+            >
+                <Word
+                    nickname={displayName}
+                    currentWord={currentWord}
+                    wrongAttempts={wrongAttempts}
+                    score={score}
+                    currentWordNumber={currentWordIndex + 1}
+                    sessionSize={SESSION_SIZE}
+                    onCorrectAnswer={handleCorrectAnswer}
+                    onWrongAnswer={handleWrongAnswer}
+                    onSkip={handleSkip}
+                />
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -186,9 +204,16 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    contentContainer: {
+        flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 20,
+        padding: 24,
+    },
+    contentContainerCompact: {
+        justifyContent: 'flex-start',
+        paddingTop: 32,
     },
     resultTitle: {
         fontWeight: 'bold',
