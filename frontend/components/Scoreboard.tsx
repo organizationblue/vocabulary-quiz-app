@@ -131,10 +131,12 @@ const Scoreboard: React.FC = () => {
           data={scores}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
-            let rowStyle = [styles.row];
-            if (item.rank === 1) rowStyle.push(styles.gold);
-            else if (item.rank === 2) rowStyle.push(styles.silver);
-            else if (item.rank === 3) rowStyle.push(styles.bronze);
+          const rowStyle = [
+            styles.row,
+            item.rank === 1 && styles.gold,
+            item.rank === 2 && styles.silver,
+            item.rank === 3 && styles.bronze,
+          ].filter(Boolean);
             // Format date and time
             const dateObj = new Date(item.createdAt);
             // Format as DD/MM/YYYY
