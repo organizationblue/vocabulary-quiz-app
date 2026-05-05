@@ -539,6 +539,124 @@ app.post('/api/user', async (req: Request, res: Response) => {
 
 /**
  * @openapi
+ * /api/scores:
+ *   get:
+ *     summary: Get top saved scores
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *           minimum: 1
+ *           maximum: 100
+ *       - in: query
+ *         name: sourceLanguage
+ *         schema:
+ *           type: string
+ *           enum: [finnish, english, swedish, german, spanish]
+ *       - in: query
+ *         name: targetLanguage
+ *         schema:
+ *           type: string
+ *           enum: [finnish, english, swedish, german, spanish]
+ *     responses:
+ *       200:
+ *         description: Scoreboard entries ordered by score
+ */
+app.get('/api/scores', async (req: Request, res: Response) => {
+    try {
+        let limit = parseInt(req.query.limit as string);
+        let sourceLanguage = req.query.sourceLanguage as string | undefined;
+        let targetLanguage = req.query.targetLanguage as string | undefined;
+        let where = {};
+
+        if (Number.isNaN(limit)) {
+            limit = 10;
+        }
+
+        if (limit <= 0) {
+            res.status(400).json({
+                success: false,
+                message: 'Limit must be at least 1',
+            });
+            return;
+        }
+
+        if (limit > 100) {
+            res.status(400).json({
+                success: false,
+                message: 'Limit must be at most 100',
+            });
+            return;
+        }
+
+        // Allow querying by only sourceLanguage, only targetLanguage, both, or neither
+        if (sourceLanguage && targetLanguage) {
+            let error = getInvalidLanguageMessage(
+                sourceLanguage,
+                targetLanguage
+            );
+            if (error) {
+                res.status(400).json({
+                    success: false,
+                    message: error,
+                });
+                return;
+            }
+            where = { sourceLanguage, targetLanguage };
+        } else if (sourceLanguage) {
+            where = { sourceLanguage };
+        } else if (targetLanguage) {
+            where = { targetLanguage };
+        }
+
+        let scores = await prisma.score.findMany({
+            where,
+            orderBy: [{ score: 'desc' }, { createdAt: 'asc' }],
+            take: limit,
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        nickname: true,
+                        username: true,
+                        displayName: true,
+                    },
+                },
+            },
+        });
+
+        let data = scores.map((entry, index) => ({
+            id: entry.id,
+            rank: index + 1,
+            score: entry.score,
+            sourceLanguage: entry.sourceLanguage,
+            targetLanguage: entry.targetLanguage,
+            createdAt: entry.createdAt,
+            user: {
+                id: entry.user.id,
+                username: entry.user.username ?? entry.user.nickname,
+                displayName: entry.user.displayName ?? entry.user.nickname,
+            },
+        }));
+
+        res.status(200).json({
+            success: true,
+            count: data.length,
+            data,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch scoreboard',
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+});
+
+/**
+ * @openapi
  * /api/score:
  *   post:
  *     summary: Save a session score for the authenticated user
