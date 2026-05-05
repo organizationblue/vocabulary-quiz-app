@@ -131,6 +131,16 @@ export default function StartScreen({ navigation }: Props) {
                 >
                     Start Game
                 </Button>
+                <Button
+                    mode="outlined"
+                    style={styles.button}
+                    onPress={() => navigation.navigate('Scoreboard', {
+                        sourceLanguage,
+                        targetLanguage,
+                    })}
+                >
+                    View Scoreboard
+                </Button>
                 <Button mode="outlined" style={styles.button} onPress={logout}>
                     Log Out
                 </Button>

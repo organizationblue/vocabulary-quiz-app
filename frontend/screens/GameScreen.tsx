@@ -162,6 +162,17 @@ export default function GameScreen({ route, navigation }: Props) {
 
                 <Button
                     mode="outlined"
+                    onPress={() => navigation.navigate('Scoreboard', {
+                        sourceLanguage,
+                        targetLanguage,
+                    })}
+                    style={styles.button}
+                >
+                    View Scoreboard
+                </Button>
+
+                <Button
+                    mode="outlined"
                     onPress={() => navigation.navigate('Start')}
                     style={styles.button}
                 >

@@ -22,4 +22,8 @@ export type RootStackParamList = {
         sourceLanguage: Language;
         targetLanguage: Language;
     };
+    Scoreboard: {
+        sourceLanguage?: Language;
+        targetLanguage?: Language;
+    } | undefined;
 };
