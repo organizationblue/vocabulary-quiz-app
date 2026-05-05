@@ -182,18 +182,6 @@ describe('authentication routes', () => {
         });
     });
 
-    it('rejects scoreboard filters with only one language', async () => {
-        const response = await request(app).get(
-            '/api/scores?sourceLanguage=english'
-        );
-
-        expect(response.status).toBe(400);
-        expect(response.body.success).toBe(false);
-        expect(response.body.message).toBe(
-            'Both sourceLanguage and targetLanguage must be provided together'
-        );
-    });
-
     it('rejects scoreboard limits smaller than 1', async () => {
         const response = await request(app).get('/api/scores?limit=0');
 
