@@ -8,6 +8,7 @@ import { ActivityIndicator, MD3LightTheme, PaperProvider, Text } from 'react-nat
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import StartScreen from './screens/StartScreen';
+import ScoreboardScreen from './screens/ScoreboardScreen';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -39,6 +40,11 @@ function RootNavigator() {
                             name="Game"
                             component={GameScreen}
                             options={{ title: 'Vocabulary Quiz' }}
+                        />
+                        <Stack.Screen
+                            name="Scoreboard"
+                            component={ScoreboardScreen}
+                            options={{ title: 'Scoreboard' }}
                         />
                     </>
                 ) : (

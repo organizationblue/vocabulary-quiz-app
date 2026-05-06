@@ -16,6 +16,22 @@ vi.mock('../lib/prisma.js', () => ({
                 upsert: vi.fn().mockResolvedValue({ id: 1, nickname: 'test' }),
             },
             score: {
+                findMany: vi.fn().mockResolvedValue([
+                    {
+                        id: 1,
+                        userId: 1,
+                        score: 10,
+                        sourceLanguage: 'english',
+                        targetLanguage: 'finnish',
+                        createdAt: new Date(),
+                        user: {
+                            id: 1,
+                            nickname: 'test',
+                            username: 'test',
+                            displayName: 'Test',
+                        },
+                    },
+                ]),
                 create: vi.fn().mockResolvedValue({
                     id: 1,
                     userId: 1,
