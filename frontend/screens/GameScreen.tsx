@@ -18,6 +18,7 @@ import { useAuth } from '../context/AuthContext';
 type Props = NativeStackScreenProps<RootStackParamList, 'Game'>;
 
 const SESSION_SIZE = 20;
+const WORD_TIME_LIMIT_SECONDS = 15;
 
 export const calculateWordScore = (wrongAttempts: number, wordLength: number): number => {
     const raw = Math.max(0, wordLength - wrongAttempts) / wordLength;
@@ -38,6 +39,7 @@ export default function GameScreen({ route, navigation }: Props) {
     const [score, setScore] = useState(0);
     const [gameOver, setGameOver] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
+    const [timeLeft, setTimeLeft] = useState(WORD_TIME_LIMIT_SECONDS);
 
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -69,6 +71,7 @@ export default function GameScreen({ route, navigation }: Props) {
             setWrongAttempts(0);
             setCurrentWordIndex(0);
             setGameOver(false);
+            setTimeLeft(WORD_TIME_LIMIT_SECONDS);
 
             const response = await fetch(
                 `${API_URL}/api/words?count=${SESSION_SIZE}&sourceLanguage=${sourceLanguage}&targetLanguage=${targetLanguage}`
@@ -116,6 +119,27 @@ export default function GameScreen({ route, navigation }: Props) {
     const handleSkip = () => {
         advanceWord(score);
     };
+
+    useEffect(() => {
+        if (loading || gameOver || !wordPool[currentWordIndex]) {
+            return;
+        }
+
+        setTimeLeft(WORD_TIME_LIMIT_SECONDS);
+
+        const timer = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    handleSkip();
+                    return WORD_TIME_LIMIT_SECONDS;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [currentWordIndex, loading, gameOver, wordPool]);
 
     useEffect(() => {
         startSession();
@@ -202,6 +226,8 @@ export default function GameScreen({ route, navigation }: Props) {
                     score={score}
                     currentWordNumber={currentWordIndex + 1}
                     sessionSize={SESSION_SIZE}
+                    timeLeft={timeLeft}
+                    isTimerCritical={timeLeft <= 5}
                     onCorrectAnswer={handleCorrectAnswer}
                     onWrongAnswer={handleWrongAnswer}
                     onSkip={handleSkip}
@@ -246,5 +272,5 @@ const styles = StyleSheet.create({
         width: '100%',
         maxWidth: 400,
         marginTop: 8,
-    }
+    },
 });

@@ -17,6 +17,8 @@ interface WordProps {
     score: number;
     currentWordNumber: number;
     sessionSize: number;
+    timeLeft: number;
+    isTimerCritical: boolean;
     onCorrectAnswer: () => void;
     onWrongAnswer: () => void;
     onSkip: () => void;
@@ -29,6 +31,8 @@ export default function Word({
     score,
     currentWordNumber,
     sessionSize,
+    timeLeft,
+    isTimerCritical,
     onCorrectAnswer,
     onWrongAnswer,
     onSkip,
@@ -120,6 +124,15 @@ export default function Word({
             <Text style={[styles.progressText, { fontSize: normalFontSize }]}>
                 Word {currentWordNumber} / {sessionSize}
             </Text>
+            <Text
+                style={[
+                    styles.timerText,
+                    { fontSize: normalFontSize },
+                    isTimerCritical && styles.timerTextDanger,
+                ]}
+            >
+                Time left: {timeLeft}s
+            </Text>
 
             {message && (
                 <Text style={[styles.wordText, { fontSize: titleFontSize }, { color: message.color }]}>
@@ -199,6 +212,15 @@ const styles = StyleSheet.create({
     progressText: {
         color: '#999',
         textAlign: 'center',
+    },
+    timerText: {
+        color: '#666',
+        textAlign: 'center',
+        marginTop: -4,
+    },
+    timerTextDanger: {
+        color: '#d32f2f',
+        fontWeight: 'bold',
     },
     wordText: {
         fontWeight: 'bold',
