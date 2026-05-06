@@ -134,21 +134,23 @@ export default function Word({
                 Time left: {timeLeft}s
             </Text>
 
-            {message && (
-                <Text style={[styles.wordText, { fontSize: titleFontSize }, { color: message.color }]}>
-                    {message.content}
-                </Text>
-            )}
+            <View style={styles.wordArea}>
+                {message && (
+                    <Text style={[styles.wordText, { fontSize: titleFontSize }, { color: message.color }]}>
+                        {message.content}
+                    </Text>
+                )}
 
-            <Text style={[styles.wordText, { fontSize: titleFontSize }]}>
-                {currentWord.prompt}
-            </Text>
-
-            {hintText && (
-                <Text style={[styles.hintText, { fontSize: normalFontSize }]}>
-                    Hint: {hintText}
+                <Text style={[styles.wordText, { fontSize: titleFontSize }]}>
+                    {currentWord.prompt}
                 </Text>
-            )}
+
+                {hintText && (
+                    <Text style={[styles.hintText, { fontSize: normalFontSize }]}>
+                        Hint: {hintText}
+                    </Text>
+                )}
+            </View>
 
             <Pressable
                 onPress={() => inputRef.current?.focus()}
@@ -167,14 +169,18 @@ export default function Word({
             </Pressable>
 
             <View style={[styles.buttonRow, isCompact && styles.buttonRowCompact]}>
-                <Button
-                    onPress={guessWord}
-                    title="Submit"
-                />
-                <Button
-                    onPress={handleSkip}
-                    title="Skip"
-                />
+                <View style={styles.buttonContainer}>
+                    <Button
+                        onPress={guessWord}
+                        title="Submit"
+                    />
+                </View>
+                <View style={styles.buttonContainer}>
+                    <Button
+                        onPress={handleSkip}
+                        title="Skip"
+                    />
+                </View>
             </View>
         </View>
     );
@@ -226,6 +232,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
+    wordArea: {
+        width: '100%',
+        minHeight: 120,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 8,
+    },
     inputWrapper: {
         width: '100%',
     },
@@ -234,6 +247,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         paddingHorizontal: 12,
         paddingVertical: 12,
+        height: 48,
         borderRadius: 6,
         width: '100%',
     },
@@ -250,5 +264,9 @@ const styles = StyleSheet.create({
     },
     buttonRowCompact: {
         justifyContent: 'space-between',
+    },
+    buttonContainer: {
+        flex: 1,
+        marginHorizontal: 6,
     },
 });
