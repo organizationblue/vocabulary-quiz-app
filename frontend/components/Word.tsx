@@ -193,8 +193,8 @@ export default function Word({
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        minWidth: 550,
-        minHeight: 580,
+        minWidth: 520,
+        minHeight: 520,
         padding: 24,
         gap: 12,
         borderWidth: 1,
