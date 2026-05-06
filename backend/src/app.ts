@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import type { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { getRandomWord, getRandomWords } from './service/wordService.js';
 import { isSupportedLanguage, SUPPORTED_LANGUAGES } from './types/words.js';
 import {
@@ -54,37 +56,50 @@ app.use((req: Request, res: Response, next) => {
 });
 app.use(express.json());
 
-   // Swagger definition
-     const swaggerOptions = {
-       swaggerDefinition: {
-         openapi: '3.0.0',
-         info: {
-           title: 'My API',
-           version: '1.0.0',
-           description: 'API documentation using Swagger',
-         },
-         servers: [
-           {
-             url: `http://localhost:${PORT}`,
-           },
-         ],
-         components: {
-           schemas: {
-            Word: {
-              type: 'object',
-              properties: {
-                prompt: { type: 'string', description: 'Finnish word to translate' },
-                answer: { type: 'string', description: 'Correct translation in the requested language' }
-              }
-            }
-           }
-         },
-       },
-       apis: ['./src/app.ts'], // Path to your API docs
-     }
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDirPath = path.dirname(currentFilePath);
 
-   const swaggerDocs = swaggerJSDoc(swaggerOptions);
-   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+// Include both TS and compiled JS paths so docs work in dev (tsx) and prod (dist).
+const swaggerApiFiles = [
+        path.resolve(currentDirPath, 'app.ts'),
+        path.resolve(currentDirPath, 'app.js'),
+        path.resolve(process.cwd(), 'src/app.ts'),
+        path.resolve(process.cwd(), 'dist/app.js'),
+];
+
+const swaggerOptions = {
+        definition: {
+                openapi: '3.0.0',
+                info: {
+                        title: 'Vocabulary Quiz API',
+                        version: '1.0.0',
+                        description: 'API documentation using Swagger',
+                },
+                // Relative URL keeps Swagger "Try it out" on the same host as the UI.
+                servers: [{ url: '/' }],
+                components: {
+                        schemas: {
+                                Word: {
+                                        type: 'object',
+                                        properties: {
+                                                prompt: {
+                                                        type: 'string',
+                                                        description: 'Word shown to the player in the selected source language',
+                                                },
+                                                answer: {
+                                                        type: 'string',
+                                                        description: 'Correct translation in the selected target language',
+                                                },
+                                        },
+                                },
+                        },
+                },
+        },
+        apis: swaggerApiFiles,
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 const getLanguageSelection = (query: Request['query']) => {
     const sourceLanguage =
