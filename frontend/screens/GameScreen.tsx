@@ -18,11 +18,21 @@ import { useAuth } from '../context/AuthContext';
 type Props = NativeStackScreenProps<RootStackParamList, 'Game'>;
 
 const SESSION_SIZE = 20;
-const WORD_TIME_LIMIT_SECONDS = 15;
+export const WORD_TIME_LIMIT_SECONDS = 15;
 
 export const calculateWordScore = (wrongAttempts: number, wordLength: number): number => {
     const raw = Math.max(0, wordLength - wrongAttempts) / wordLength;
     return Math.round(raw * 10) / 10;
+};
+
+export const shouldAutoSkip = (timeLeft: number): boolean => timeLeft <= 1;
+
+export const getNextTimeLeft = (timeLeft: number): number => {
+    if (shouldAutoSkip(timeLeft)) {
+        return WORD_TIME_LIMIT_SECONDS;
+    }
+
+    return timeLeft - 1;
 };
 
 export default function GameScreen({ route, navigation }: Props) {
@@ -129,12 +139,12 @@ export default function GameScreen({ route, navigation }: Props) {
 
         const timer = setInterval(() => {
             setTimeLeft(prev => {
-                if (prev <= 1) {
+                if (shouldAutoSkip(prev)) {
                     clearInterval(timer);
                     handleSkip();
-                    return WORD_TIME_LIMIT_SECONDS;
+                    return getNextTimeLeft(prev);
                 }
-                return prev - 1;
+                return getNextTimeLeft(prev);
             });
         }, 1000);
 
