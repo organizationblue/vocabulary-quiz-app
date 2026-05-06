@@ -111,7 +111,7 @@ export default function Word({
     const hintText = generateHint();
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, isCompact && styles.containerCompact]}>
             <View style={styles.headerRow}>
                 <Text style={[styles.nicknameText, { fontSize: normalFontSize }]}>
                     {nickname}
@@ -207,6 +207,11 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
         justifyContent: 'space-between',
+    },
+    containerCompact: {
+        minWidth: undefined,
+        minHeight: undefined,
+        padding: 16,
     },
     headerRow: {
         flexDirection: 'row',
