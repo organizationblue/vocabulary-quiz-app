@@ -2,6 +2,14 @@
 
 A React Native/Expo vocabulary quiz application where users register, log in, choose a language pair, and play a 20-word translation session with per-word timing. Scores are stored in PostgreSQL, tied to the authenticated user, and displayed on a public scoreboard.
 
+## 🔗 Project Links
+
+- Backlog: [GitHub Projects backlog](https://github.com/orgs/organizationblue/projects/4/views/1)
+- Frontend production: https://vocabulary-quiz-app.onrender.com
+- Backend production: https://vocabulary-quiz-app-git-vocabulary-quiz-app.2.rahtiapp.fi
+- Swagger documentation: https://vocabulary-quiz-app-git-vocabulary-quiz-app.2.rahtiapp.fi/api-docs
+- License: [LICENSE](LICENSE)
+
 ## 🎯 Core Features
 
 1. **Account-based play** - Register, log in, restore session, and log out
@@ -320,7 +328,7 @@ Legacy nickname-based endpoint kept for backward compatibility with earlier app 
 
 #### `GET /api-docs`
 
-Swagger UI for the backend API.
+Swagger UI for the backend API: https://vocabulary-quiz-app-git-vocabulary-quiz-app.2.rahtiapp.fi/api-docs
 
 ## 📈 Deployment
 
@@ -377,3 +385,4 @@ npx prisma migrate deploy --schema prisma/schema.prisma
 - Elias Jungman
 - Henri Tomperi
 - Eetu Pärnänen
+
