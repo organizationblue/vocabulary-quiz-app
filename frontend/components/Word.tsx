@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         maxWidth: 460,
-        minHeight: 540,
+        minHeight: 600,
         padding: 24,
         gap: 12,
         borderWidth: 1,
@@ -242,7 +242,8 @@ const styles = StyleSheet.create({
     },
     messageArea: {
         width: '100%',
-        minHeight: 32,
+        minHeight: 50,
+        maxHeight: 80,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 4,
