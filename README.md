@@ -1,6 +1,6 @@
 # Vocabulary Quiz App
 
-A React Native/Expo vocabulary quiz application where users register, log in, choose a language pair, and play a 20-word translation session. Scores are stored in PostgreSQL and tied to the authenticated user.
+A React Native/Expo vocabulary quiz application where users register, log in, choose a language pair, and play a 20-word translation session with per-word timing. Scores are stored in PostgreSQL, tied to the authenticated user, and displayed on a public scoreboard.
 
 ## 🎯 Core Features
 
@@ -8,9 +8,11 @@ A React Native/Expo vocabulary quiz application where users register, log in, ch
 2. **Multi-language quiz sessions** - Choose a source and target language before each game
 3. **Real-time feedback** - Immediate response for correct and incorrect answers
 4. **Progressive hints** - Letters are revealed after wrong attempts
-5. **Score tracking** - Session scores are saved to the backend database
-6. **Language-pair-ready scores** - Scores are stored with the selected source and target language
-7. **Confetti celebration** - Session completion includes a game-over screen with confetti
+5. **Timed rounds** - Each word has a 15-second timer and auto-skips when time runs out
+6. **Score tracking** - Session scores are saved to the backend database
+7. **Language-pair-ready scores** - Scores are stored with the selected source and target language
+8. **Scoreboard browsing** - Players can view the top saved scores and filter them by language pair
+9. **Confetti celebration** - Session completion includes a game-over screen with confetti
 
 ## 🌍 Supported Languages
 
@@ -51,6 +53,7 @@ A React Native/Expo vocabulary quiz application where users register, log in, ch
 vocabulary-quiz-app/
 ├── frontend/
 │   ├── components/
+│   │   ├── Scoreboard.tsx
 │   │   └── Word.tsx
 │   ├── context/
 │   │   └── AuthContext.tsx
@@ -58,12 +61,17 @@ vocabulary-quiz-app/
 │   │   ├── LoginScreen.tsx
 │   │   ├── RegisterScreen.tsx
 │   │   ├── StartScreen.tsx
-│   │   └── GameScreen.tsx
+│   │   ├── GameScreen.tsx
+│   │   └── ScoreboardScreen.tsx
 │   ├── types/
 │   │   ├── auth.ts
-│   │   └── navigation.ts
+│   │   ├── navigation.ts
+│   │   └── scoreboard.ts
 │   ├── utils/
 │   │   └── storage.ts
+│   ├── tests/
+│   │   ├── score.test.ts
+│   │   └── timer.test.ts
 │   └── App.tsx
 ├── backend/
 │   ├── prisma/
@@ -215,8 +223,11 @@ model Score {
 3. Logged-out users see `Login` and `Register`
 4. Logged-in users see `Start`
 5. User selects source and target language
-6. User plays a 20-word quiz session
-7. Final score is saved to the backend for that user and language pair
+6. User plays a 20-word quiz session with a 15-second timer for each word
+7. Wrong answers reveal progressively more letters as hints
+8. When time runs out, the current word is auto-skipped
+9. Final score is saved to the backend for that user and language pair
+10. User can open the scoreboard to see top scores, optionally filtered by source and target language
 
 ## 🔌 API Endpoints
 
@@ -286,6 +297,18 @@ Save a score for the authenticated user.
 ```
 
 This endpoint requires a bearer token.
+
+#### `GET /api/scores`
+
+Returns the top saved scores, ordered by score and then by creation time.
+
+Optional query parameters:
+
+- `limit` defaults to 10 and must be between 1 and 100
+- `sourceLanguage`
+- `targetLanguage`
+
+If both language filters are provided, they must be a valid pair.
 
 ### Legacy
 
