@@ -101,6 +101,55 @@ vocabulary-quiz-app/
 └── .github/workflows/ci.yml
 ```
 
+## 🏗️ Project Architecture
+
+```mermaid
+flowchart LR
+  User[User / Mobile or Web Client]
+
+  subgraph Frontend[Frontend - React Native / Expo]
+    Navigation[Navigation Screens]
+    AuthContext[AuthContext]
+    GameUI[Game Screen + Word Component]
+    ScoreboardUI[Scoreboard Screen]
+    Storage[Secure Store / AsyncStorage]
+  end
+
+  subgraph Backend[Backend - Express / Prisma]
+    AuthAPI[/api/auth/*]
+    WordAPI[/api/word and /api/words/]
+    ScoreAPI[/api/score and /api/scores/]
+    Swagger[/api-docs]
+  end
+
+  DB[(PostgreSQL / Supabase)]
+
+  User --> Navigation
+  Navigation --> AuthContext
+  AuthContext --> Storage
+  Navigation --> GameUI
+  Navigation --> ScoreboardUI
+
+  AuthContext --> AuthAPI
+  GameUI --> WordAPI
+  GameUI --> ScoreAPI
+  ScoreboardUI --> ScoreAPI
+
+  AuthAPI --> DB
+  WordAPI --> DB
+  ScoreAPI --> DB
+  Swagger --> Backend
+```
+
+### How the parts communicate
+
+- The frontend is the user-facing layer. It handles login, game flow, and scoreboard views.
+- `AuthContext` stores the session token and user data locally, then verifies the session against the backend when the app starts.
+- The game screen fetches quiz words from the backend and posts the final score back after the session ends.
+- The scoreboard screen fetches saved scores from the backend and can filter them by language pair.
+- The backend validates requests, handles authentication, generates words, stores scores, and exposes the Swagger docs.
+- PostgreSQL stores the persistent data: users, authentication-related fields, and score records.
+
 ## 🚀 Getting Started
 
 ### Prerequisites
