@@ -237,7 +237,7 @@ model Score {
 9. Final score is saved to the backend for that user and language pair
 10. User can open the scoreboard to see top scores, optionally filtered by source and target language
 
-## Game Flow Screens
+## Game Flow Screens (browser)
 
 <img width="3072" height="1840" alt="vocahome" src="https://github.com/user-attachments/assets/05f767b7-2d28-4803-b498-569fb2bd171b" />
 
