@@ -109,17 +109,18 @@ flowchart LR
 
   subgraph Frontend["Frontend - React Native / Expo"]
     Navigation["Navigation Screens"]
-    AuthContext["AuthContext"]
+    AuthContext["AuthContext / session restore"]
     GameUI["Game Screen + Word Component"]
     ScoreboardUI["Scoreboard Screen"]
     Storage["Secure Store / AsyncStorage"]
   end
 
   subgraph Backend["Backend - Express / Prisma"]
-    AuthAPI["/api/auth/*"]
+    AuthAPI["/api/auth/register, /api/auth/login, /api/auth/me"]
     WordAPI["/api/word and /api/words/"]
     ScoreAPI["/api/score and /api/scores/"]
-    Swagger["/api-docs"]
+    LegacyAPI["/api/user (legacy)"]
+    Docs["Swagger UI /api-docs"]
   end
 
   DB[("PostgreSQL / Supabase")]
@@ -138,7 +139,8 @@ flowchart LR
   AuthAPI --> DB
   WordAPI --> DB
   ScoreAPI --> DB
-  Swagger --> Backend
+  LegacyAPI --> DB
+  Docs --> Backend
 ```
 
 ### How the parts communicate
@@ -148,6 +150,7 @@ flowchart LR
 - The game screen fetches quiz words from the backend and posts the final score back after the session ends.
 - The scoreboard screen fetches saved scores from the backend and can filter them by language pair.
 - The backend validates requests, handles authentication, generates words, stores scores, and exposes the Swagger docs.
+- The backend also still exposes the legacy nickname-based `/api/user` route for backward compatibility.
 - PostgreSQL stores the persistent data: users, authentication-related fields, and score records.
 
 ## 🚀 Getting Started
