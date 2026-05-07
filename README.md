@@ -237,6 +237,20 @@ model Score {
 9. Final score is saved to the backend for that user and language pair
 10. User can open the scoreboard to see top scores, optionally filtered by source and target language
 
+## Game Flow Screens
+
+<img width="3072" height="1840" alt="vocahome" src="https://github.com/user-attachments/assets/05f767b7-2d28-4803-b498-569fb2bd171b" />
+
+<img width="3072" height="1840" alt="vocaregister" src="https://github.com/user-attachments/assets/70dba368-3c1f-4206-8a1c-95237ddd3d6d" />
+
+<img width="3072" height="1840" alt="vocastart" src="https://github.com/user-attachments/assets/fad0fe08-ac46-4d76-bdda-0f4a8930a56e" />
+
+<img width="3072" height="1840" alt="vocagame" src="https://github.com/user-attachments/assets/b789eade-7830-43eb-8d8d-bd52ed62a925" />
+
+<img width="3072" height="1840" alt="vocaend" src="https://github.com/user-attachments/assets/61bed2b9-b6ae-410d-b418-2f6e7066ff04" />
+
+<img width="3072" height="1840" alt="vocascore" src="https://github.com/user-attachments/assets/2a5ee161-1eae-493e-ad4c-b986fac0efcd" />
+
 ## 🔌 API Endpoints
 
 ### Auth
