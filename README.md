@@ -105,24 +105,24 @@ vocabulary-quiz-app/
 
 ```mermaid
 flowchart LR
-  User[User / Mobile or Web Client]
+  User["User / Mobile or Web Client"]
 
-  subgraph Frontend[Frontend - React Native / Expo]
-    Navigation[Navigation Screens]
-    AuthContext[AuthContext]
-    GameUI[Game Screen + Word Component]
-    ScoreboardUI[Scoreboard Screen]
-    Storage[Secure Store / AsyncStorage]
+  subgraph Frontend["Frontend - React Native / Expo"]
+    Navigation["Navigation Screens"]
+    AuthContext["AuthContext"]
+    GameUI["Game Screen + Word Component"]
+    ScoreboardUI["Scoreboard Screen"]
+    Storage["Secure Store / AsyncStorage"]
   end
 
-  subgraph Backend[Backend - Express / Prisma]
-    AuthAPI[/api/auth/*]
-    WordAPI[/api/word and /api/words/]
-    ScoreAPI[/api/score and /api/scores/]
-    Swagger[/api-docs]
+  subgraph Backend["Backend - Express / Prisma"]
+    AuthAPI["/api/auth/*"]
+    WordAPI["/api/word and /api/words/"]
+    ScoreAPI["/api/score and /api/scores/"]
+    Swagger["/api-docs"]
   end
 
-  DB[(PostgreSQL / Supabase)]
+  DB[("PostgreSQL / Supabase")]
 
   User --> Navigation
   Navigation --> AuthContext
